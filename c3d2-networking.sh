@@ -56,6 +56,8 @@ TCPDUMP=$(/usr/bin/which tcpdump)
 #
 VLAN=$(/usr/bin/dpkg -l | grep vlan | awk '{print $2}')
 NETMANAGER=$(/etc/init.d/network-manager status | grep enabled | awk '{print $4}' | sed 's/)//g')
+#
+BACKUPDATE=$(date +%Y-%m-%d-%H%M%S)
 ### // stage2 ###
 #
 ### stage3 // ###
@@ -105,6 +107,83 @@ case $response in
       /bin/echo "" # dummy
       /bin/echo "Network-Manager disabled!"
       sleep 5
+      /bin/echo "" # dummy
+      echo "<--- --- --->"
+      echo "write a new /etc/network/interfaces config file"
+      echo "<--- --- --->"
+      cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE
+      touch /tmp/c3d2-networking_new_config.txt
+#
+### ### ###
+/bin/cat <<INTERFACELOOPBACK > /etc/network/interfaces
+### loopback // ###
+auto lo
+iface lo inet loopback
+### // loopback ###
+#
+INTERFACELOOPBACK
+### ### ###
+#
+### ### ###
+ETH0=$(dmesg | egrep "eth0" | egrep -v "ifname" | awk '{print $5}' | head -n 1 | sed 's/://g')
+ETH1=$(dmesg | egrep "eth1" | egrep -v "ifname" | awk '{print $5}' | head -n 1 | sed 's/://g')
+ETH2=$(dmesg | egrep "eth2" | egrep -v "ifname" | awk '{print $5}' | head -n 1 | sed 's/://g')
+WLAN0=$(dmesg | egrep "wlan0" | egrep -v "ifname" | awk '{print $3}' | head -n 1 | sed 's/://g')
+#
+if [ -z $ETH0 ]; then
+   echo "" # dummy
+else
+/bin/cat <<INTERFACEETH0 >> /etc/network/interfaces
+### eth0 // ###
+auto eth0
+iface eth0 inet dhcp
+iface eth0 inet6 auto
+### // eth0 ###
+#
+INTERFACEETH0
+fi
+#
+if [ -z $ETH1 ]; then
+   echo "" # dummy
+else
+/bin/cat <<INTERFACEETH1 >> /etc/network/interfaces
+### eth1 // ###
+auto eth1
+iface eth1 inet dhcp
+iface eth1 inet6 auto
+### // eth1 ###
+#
+INTERFACEETH1
+fi
+#
+if [ -z $ETH2 ]; then
+   echo "" # dummy
+else
+/bin/cat <<INTERFACEETH2 >> /etc/network/interfaces
+### eth2 // ###
+auto eth2
+iface eth2 inet dhcp
+iface eth2 inet6 auto
+### // eth2 ###
+#
+INTERFACEETH2
+fi
+#
+if [ -z $WLAN0 ]; then
+   echo "" # dummy
+else
+/bin/cat <<INTERFACEWLAN0 >> /etc/network/interfaces
+### wlan0 // ###
+auto wlan0
+iface wlan0 inet dhcp
+iface wlan0 inet6 auto
+wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+### // wlan0 ###
+#
+INTERFACEWLAN0
+fi
+#
+### ### ###
 #/exit 0
 ;;
    1)
@@ -247,7 +326,7 @@ IFLIST2="/tmp/c3d2-networking_if_2.txt"
 IFLIST3="/tmp/c3d2-networking_if_3.txt"
 #/IFLIST4="/tmp/c3d2-networking_if_4.txt"
 #
-dmesg | grep eth | egrep "eth0|eth1|eth2" | awk '{print $4}' | sort | uniq | sed 's/://g' > $IFLIST1
+dmesg | egrep "eth0|eth1|eth2" | egrep -v "ifname" | awk '{print $5}' | sort | uniq | sed 's/://g' > $IFLIST1
 nl $IFLIST1 | sed 's/ //g' > $IFLIST2
 dialog --menu "Choose one VLAN RAW Interface:" 15 15 15 `cat $IFLIST2` 2>$IFLIST3
 #/ GETIF=$(cat $IFLIST3 | cut -c1)
@@ -261,7 +340,7 @@ INTERFACES=$(cat /etc/network/interfaces | grep "c3d2-networking" | head -n1 | a
 if [ -z $INTERFACES ]; then
     echo "" # dummy
     echo "<--- --- --->"
-    echo "write new vlan entries in your /etc/network/interfaces configfile"
+    echo "write new vlan entries in your /etc/network/interfaces config file"
     echo "<--- --- --->"
     sed -i -e '/c3d2-networking-vlan-start/,/c3d2-networking-vlan-end/d' /etc/network/interfaces
 /bin/cat <<INTERFACEVLAN >> /etc/network/interfaces
@@ -304,10 +383,21 @@ INTERFACEVLAN
 #/else
 #/echo "" # dummy
 fi
-
 ### ### ###
 #
 ### // vlan ###
+
+CONFIGCHECK="/tmp/c3d2-networking_new_config.txt"
+if [ -e $CONFIGCHECK ]; then
+   rm -f /tmp/c3d2-networking_new_config.txt
+   dialog --title "new network config" --backtitle "new network config" --infobox "you've got a new network config file, please reboot your system immediately..." 3 82
+   echo "" # dummy
+   echo "" # dummy
+   echo "ERROR: Reboot your System immediately!"
+   exit 1
+fi
+#
+### ### ###
 
 
 ### // stage3 ###
