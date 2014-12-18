@@ -62,7 +62,7 @@ BACKUPDATE=$(date +%Y-%m-%d-%H%M%S)
 #
 ### stage3 // ###
 
-if [ $MYNAME = root ]; then
+if [ "$MYNAME" = "root" ]; then
 #/echo "" # dummy
    echo "<--- --- --->"
 else
@@ -72,7 +72,7 @@ else
    exit 1
 fi
 
-if [ $DEBVERSION = 8 ]; then
+if [ "$DEBVERSION" = "8" ]; then
    echo "" # dummy
 else
    echo "<--- --- --->"
@@ -81,7 +81,7 @@ else
    exit 1
 fi
 
-if [ $NETMANAGER = enabled ]; then
+if [ "$NETMANAGER" = X"enabled" ]; then
 #/echo "Well, your current Setup use an Network-Manager, we don't like it"
 #/echo "" # dummy
 #/echo "run   /etc/init.d/network-manager stop; update-rc.d network-manager remove; /etc/init.d/networking stop   manually"
