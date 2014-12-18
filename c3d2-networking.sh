@@ -519,6 +519,8 @@ dialog --inputbox "Enter the interface name:" 8 40 2>$GETIPV4IF
 GETIPV4IFVALUE=$(cat $GETIPV4IF | sed 's/#//g' | sed 's/%//g')
 GETIPV4IFCHECK=$(ifconfig | grep Link | awk '{print $1}' | sed 's/://g' | grep $GETIPV4IFVALUE)
 if [ -z $GETIPV4IFCHECK ]; then
+   echo "" # dummy
+   echo "" # dummy
    echo "ERROR: interface doesn't exist or isn't showing up"
    exit 1
 else
@@ -922,7 +924,10 @@ dialog --textbox "$GETIPV4INFO" 0 0
 
 ### // stage10 ###
 
+### clean up 3 // ###
 rm -rf /tmp/get_ipv4*
+### // clean up 3 ###
+#
 ### // stage7 ###
 )
 ### // get_ipv4_address ###
