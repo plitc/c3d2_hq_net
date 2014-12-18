@@ -32,20 +32,15 @@
 
 
 ### stage0 // ###
-#
 DISTRO=$(uname -a)
 DEBIAN=$(uname -a | awk '{print $6}')
 DEBVERSION=$(cat /etc/debian_version | cut -c1)
 MYNAME=$(whoami)
-#
 ### // stage0 ###
-
-### stage1 // ###
 #
+### stage1 // ###
 case $DEBIAN in
 Debian)
-   ### Debian ###
-#
 ### stage2 // ###
 ARPING=$(/usr/bin/which arping)
 ARPSCAN=$(/usr/bin/which arp-scan)
@@ -53,15 +48,12 @@ DIALOG=$(/usr/bin/which dialog)
 ZSH=$(/usr/bin/which zsh)
 IFCONFIG=$(/usr/bin/which ifconfig)
 TCPDUMP=$(/usr/bin/which tcpdump)
-#
 VLAN=$(/usr/bin/dpkg -l | grep vlan | awk '{print $2}')
 NETMANAGER=$(/etc/init.d/network-manager status | grep enabled | awk '{print $4}' | sed 's/)//g')
-#
 BACKUPDATE=$(date +%Y-%m-%d-%H%M%S)
 ### // stage2 ###
 #
 ### stage3 // ###
-
 if [ "$MYNAME" = "root" ]; then
 #/ echo "" # dummy
    echo "<--- --- --->"
@@ -71,7 +63,6 @@ else
    echo "ERROR: You must be root to run this script"
    exit 1
 fi
-
 if [ "$DEBVERSION" = "8" ]; then
    echo "" # dummy
 else
@@ -80,7 +71,6 @@ else
    echo "ERROR: You need Debian 8 (Jessie) Version"
    exit 1
 fi
-
 if [ X"$NETMANAGER" = X"enabled" ]; then
 #/ echo "Well, your current Setup use an Network-Manager, we don't like it"
 #/ echo "" # dummy
@@ -89,11 +79,9 @@ if [ X"$NETMANAGER" = X"enabled" ]; then
 #/ echo "ERROR: network-manager is enabled"
 #/ sleep 1
 #/ exit 1
-#
-### ### ###
 #/ (
 dialog --title "disable Network-Manager" --backtitle "disable Network-Manager" --yesno "well, your current setup use an network-manager, we don't like that, can we disable it ?" 8 95
-
+#
 response=$?
 case $response in
    0)
@@ -113,8 +101,6 @@ case $response in
       echo "<--- --- --->"
       cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE
       touch /tmp/c3d2-networking_new_config.txt
-#
-### ### ###
 /bin/cat <<INTERFACELOOPBACK > /etc/network/interfaces
 ### loopback // ###
 auto lo
@@ -122,16 +108,12 @@ iface lo inet loopback
 ### // loopback ###
 #
 INTERFACELOOPBACK
-### ### ###
-#
-### ### ###
 #/ ETH0=$(dmesg | egrep "eth0" | egrep -v "ifname" | awk '{print $5}' | head -n 1 | sed 's/://g')
 #/ ETH1=$(dmesg | egrep "eth1" | egrep -v "ifname" | awk '{print $5}' | head -n 1 | sed 's/://g')
 #/ ETH2=$(dmesg | egrep "eth2" | egrep -v "ifname" | awk '{print $5}' | head -n 1 | sed 's/://g')
 #/ WLAN0=$(dmesg | egrep "wlan0" | egrep -v "ifname" | awk '{print $3}' | head -n 1 | sed 's/://g')
 ETH=$(lspci | grep "Ethernet" | wc -l)
 WLAN=$(lspci | grep "Wireless" | wc -l)
-#
 if [ X"$ETH" = X"1" ]; then
 #/ echo "" # dummy
 #/ else
@@ -144,7 +126,6 @@ iface eth0 inet6 auto
 #
 INTERFACEETH0
 fi
-#
 if [ X"$ETH" = X"2" ]; then
 #/ echo "" # dummy
 #/ else
@@ -157,7 +138,6 @@ iface eth1 inet6 auto
 #
 INTERFACEETH1
 fi
-#
 if [ X"$ETH" = X"3" ]; then
 #/ echo "" # dummy
 #/ else
@@ -170,7 +150,6 @@ iface eth2 inet6 auto
 #
 INTERFACEETH2
 fi
-#
 if [ X"$WLAN" = X"1" ]; then
 #/ echo "" # dummy
 #/ else
@@ -184,8 +163,6 @@ wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
 #
 INTERFACEWLAN0
 fi
-#
-### ### ###
 #/ exit 0
 ;;
    1)
@@ -202,12 +179,9 @@ fi
 ;;
 esac
 #/ )
-### ### ###
-#
 else
    echo "" # dummy
 fi
-
 if [ -z $ARPING ]; then
    echo "<--- --- --->"
    echo "need arping"
@@ -218,7 +192,6 @@ if [ -z $ARPING ]; then
 #/ else
 #/ echo "" # dummy
 fi
-
 if [ -z $ARPSCAN ]; then
    echo "<--- --- --->"
    echo "need arp-scan"
@@ -229,7 +202,6 @@ if [ -z $ARPSCAN ]; then
 #/ else
 #/ echo "" # dummy
 fi
-
 if [ -z $DIALOG ]; then
    echo "<--- --- --->"
    echo "need dialog"
@@ -240,7 +212,6 @@ if [ -z $DIALOG ]; then
 #/ else
 #/ echo "" # dummy
 fi
-
 if [ -z $ZSH ]; then
    echo "<--- --- --->"
    echo "need zsh shell"
@@ -251,7 +222,6 @@ if [ -z $ZSH ]; then
 #/ else
 #/ echo "" # dummy
 fi
-
 if [ -z $IFCONFIG ]; then
    echo "<--- --- --->"
    echo "need ifconfig"
@@ -262,7 +232,6 @@ if [ -z $IFCONFIG ]; then
 #/ else
 #/ echo "" # dummy
 fi
-
 if [ -z $TCPDUMP ]; then
     echo "<--- --- --->"
     echo "need tcpdump"
@@ -273,7 +242,6 @@ if [ -z $TCPDUMP ]; then
 #/ else
 #/ echo "" # dummy
 fi
-
 ### vlan // ###
 #
 if [ -z $VLAN ]; then
@@ -286,11 +254,8 @@ if [ -z $VLAN ]; then
 #/ else
 #/ echo "" # dummy
 fi
-#
 #/ sleep 1
-#
 KMODVLAN=$(lsmod | grep 8021q | head -n1 | awk '{print $1}')
-#
 if [ -z $KMODVLAN ]; then
     echo "" # dummy
     echo "<--- --- --->"
@@ -302,15 +267,12 @@ if [ -z $KMODVLAN ]; then
 #/ else
 #/ echo "" # dummy
 fi
-#
 KMODVLANPERSISTENT=$(cat /etc/modules | grep 8021q)
-#
 if [ -z $KMODVLANPERSISTENT ]; then
     echo "" # dummy
     echo "<--- --- --->"
     echo "need vlan kernel module on startup"
     echo "<--- --- --->"
-
 /bin/cat <<VLANMOD >> /etc/modules
 ### vlan // ###
 8021q
@@ -321,8 +283,6 @@ VLANMOD
 #/ else
 #/ echo "" # dummy
 fi
-#
-### ### ###
 ETHN=$(lspci | grep "Ethernet" | wc -l)
 if [ X"$ETHN" = X"1" ]; then
    echo "eth0" > /tmp/c3d2-networking_if_1.txt
@@ -336,7 +296,6 @@ if [ X"$ETHN" = X"3" ]; then
    echo "eth1" >> /tmp/c3d2-networking_if_1.txt
    echo "eth2" >> /tmp/c3d2-networking_if_1.txt
 fi
-### ### ###
 #/ touch /tmp/c3d2-networking_if_1.txt
 IFLIST1="/tmp/c3d2-networking_if_1.txt"
 IFLIST2="/tmp/c3d2-networking_if_2.txt"
@@ -355,11 +314,8 @@ dialog --menu "Choose one VLAN RAW Interface:" 15 15 15 `cat $IFLIST2` 2>$IFLIST
 #/ GETIF=$(cat $IFLIST3 | cut -c1)
 #/ echo $GETIF
 /usr/bin/zsh -c "join /tmp/c3d2-networking_if_2.txt /tmp/c3d2-networking_if_3.txt > /tmp/c3d2-networking_if_4.txt"
-#
 GETIF=$(cat /tmp/c3d2-networking_if_4.txt | awk '{print $2}')
-#
 INTERFACES=$(cat /etc/network/interfaces | grep "c3d2-networking" | head -n1 | awk '{print $2}')
-#
 if [ -z $INTERFACES ]; then
     echo "" # dummy
     echo "<--- --- --->"
@@ -406,10 +362,7 @@ INTERFACEVLAN
 #/else
 #/echo "" # dummy
 fi
-### ### ###
-#
 ### // vlan ###
-
 CONFIGCHECK="/tmp/c3d2-networking_new_config.txt"
 if [ -e $CONFIGCHECK ]; then
    rm -f /tmp/c3d2-networking_new_config.txt
@@ -419,14 +372,14 @@ if [ -e $CONFIGCHECK ]; then
    echo "ERROR: Reboot your System immediately!"
    exit 1
 fi
-
 ### clean up 1 // ###
-# rm -f /tmp/c3d2-networking*
+rm -f /tmp/c3d2-networking*
 ### // clean up 1 ###
+#
+### stage4 // ###
 
-### ### ###
-
-
+### // stage4 ###
+#
 ### // stage3 ###
 #
 ### ### ### ### ### ### ### ### ###
