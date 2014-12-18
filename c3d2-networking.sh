@@ -327,6 +327,11 @@ IFLIST3="/tmp/c3d2-networking_if_3.txt"
 #/IFLIST4="/tmp/c3d2-networking_if_4.txt"
 #
 dmesg | egrep "eth0|eth1|eth2" | egrep -v "ifname" | awk '{print $5}' | sort | uniq | sed 's/://g' > $IFLIST1
+if [ -e $IFLIST1 ]; then
+    echo "" # dummy
+    echo "ERROR: can't analyse the network device information from dmesg"
+    exit 1
+fi
 nl $IFLIST1 | sed 's/ //g' > $IFLIST2
 dialog --menu "Choose one VLAN RAW Interface:" 15 15 15 `cat $IFLIST2` 2>$IFLIST3
 #/ GETIF=$(cat $IFLIST3 | cut -c1)
