@@ -366,11 +366,37 @@ fi
 CONFIGCHECK="/tmp/c3d2-networking_new_config.txt"
 if [ -e $CONFIGCHECK ]; then
    rm -f /tmp/c3d2-networking_new_config.txt
+IFSTART=50
+(
+while test $IFSTART != 150
+do
+echo $IFSTART
+echo "XXX"
+echo "we try to start your interfaces (wait a minute) : ($IFSTART percent)"
+echo "XXX"
+### run // ###
+/etc/init.d/networking start
+### // run ###
+IFSTART=`expr $IFSTART + 50`
+sleep 1
+done
+) | dialog --title "/etc/init.d/networking start" --gauge "/etc/init.d/networking start" 20 70 0
+IFCHECK=$(systemctl is-active networking)
+  if [ X"$IFCHECK" = X"active" ]; then
+   echo "" # dummy
+   echo "" # dummy
+   echo "It works"
+   sleep 2
+   /sbin/ifconfig > /tmp/c3d2-networking_ifconfig1.txt
+   IFCONFIG1="/tmp/c3d2-networking_ifconfig1.txt"
+   dialog --textbox "$IFCONFIG1" 0 0
+  else
    dialog --title "new network config" --backtitle "new network config" --infobox "you've got a new network config file, please reboot your system immediately..." 3 82
    echo "" # dummy
    echo "" # dummy
    echo "ERROR: Reboot your System immediately!"
    exit 1
+  fi
 fi
 ### clean up 1 // ###
 rm -f /tmp/c3d2-networking*
