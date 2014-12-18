@@ -81,7 +81,7 @@ else
    exit 1
 fi
 
-if [ "$NETMANAGER" = X"enabled" ]; then
+if [ X"$NETMANAGER" = X"enabled" ]; then
 #/echo "Well, your current Setup use an Network-Manager, we don't like it"
 #/echo "" # dummy
 #/echo "run   /etc/init.d/network-manager stop; update-rc.d network-manager remove; /etc/init.d/networking stop   manually"
