@@ -438,7 +438,7 @@ if [ -z "$IPCHECK" ]; then
    echo "" # FUU
 else
 
-dialog --title "get_ipv4_address" --backtitle "get_ipv4_address" --yesno "well, none of your interface has an ip address, we can try manually" 5 72
+dialog --title "get_ipv4_address (experimental)" --backtitle "get_ipv4_address (experimental)" --yesno "well, none of your interface has an ip address, we can try manually" 5 72
 response2=$?
 case $response2 in
    0)
@@ -542,7 +542,6 @@ touch $GETIPV4MENUCIPFUNC
 
 
 ### stage6 // ###
-#
 ### show if list // ###
 #/ /sbin/ifconfig -a | grep "Link" | egrep -v "lo" | awk '{print $1}' > /tmp/c3d2-networking_ifconfig2.txt
 #/ IFCONFIG2="/tmp/c3d2-networking_ifconfig2.txt"
@@ -571,21 +570,20 @@ IFCHOOSELIST="/tmp/c3d2-networking_ifconfig5.txt"
 sleep 1
 GETIPV4IFVALUE=$(cat /tmp/c3d2-networking_ifconfig6.txt | awk '{print $2}')
 ### // show if list ###
-#
 GETIPV4IF="/tmp/get_ipv4_address_if.log"
 touch $GETIPV4IF
 #/ dialog --inputbox "Enter the interface name:" 8 40 2>$GETIPV4IF
 #/ GETIPV4IFVALUE=$(cat $GETIPV4IF | sed 's/#//g' | sed 's/%//g')
-GETIPV4IFCHECK=$(ifconfig -a | grep "Link" | egrep -v "lo" | awk '{print $1}' | sed 's/://g' | grep $GETIPV4IFVALUE)
-/sbin/ifconfig $GETIPV4IFVALUE up
-if [ -z $GETIPV4IFCHECK ]; then
-   echo "" # dummy
-   echo "" # dummy
-   echo "ERROR: interface doesn't exist or isn't showing up"
-   exit 1
+#/ GETIPV4IFCHECK=$(ifconfig -a | grep "Link" | egrep -v "lo" | awk '{print $1}' | sed 's/://g' | grep $GETIPV4IFVALUE)
+#/ if [ -z "$GETIPV4IFCHECK" ]; then
+#/    echo "" # dummy
+#/    echo "" # dummy
+#/    echo "ERROR: interface doesn't exist or isn't showing up"
+#/    exit 1
 #/ else
 #/ echo "" # dummy
-fi
+#/ fi
+/sbin/ifconfig $GETIPV4IFVALUE up
 ### // stage6 ###
 
 
@@ -626,10 +624,10 @@ done
 
 echo "<--- --- --- --- --- --- --- --- --->"
 
-CLASSCTEST=$(grep "192.168." $GETIPV4 | wc -l | sed 's/ //g')
-CLASSBTEST=$(grep "172.16." $GETIPV4 | wc -l | sed 's/ //g')
-CLASSATEST=$(grep "10." $GETIPV4 | wc -l | sed 's/ //g')
-CLASSDN42ATEST=$(grep "172.22." $GETIPV4 | wc -l | sed 's/ //g')
+CLASSCTEST=$(grep -F "192.168." $GETIPV4 | wc -l | sed 's/ //g')
+CLASSBTEST=$(grep -F "172.16." $GETIPV4 | wc -l | sed 's/ //g')
+CLASSATEST=$(grep -F "10." $GETIPV4 | wc -l | sed 's/ //g')
+CLASSDN42ATEST=$(grep -F "172.22." $GETIPV4 | wc -l | sed 's/ //g')
 
 if [ $CLASSCTEST = 0 ]; then
    echo "ERROR: can't find class C network, try again ..."
@@ -648,8 +646,9 @@ if [ $CLASSCTEST = 0 ]; then
             echo "<--- --- --->"
 ### ### ### DN42a // ### ### ###
                if [ $CLASSDN42ATEST = 0 ]; then
-                  echo "ERROR: ... doesn't work ..."
+                  echo "ERROR: ... doesn't work ... the tcpdump lookup was probably too short, try again"
                   echo "<--- --- --->"
+                  exit 1
 ### ### ### ### ### ###
                else
                   echo 'looks like ... DN42 A network'
@@ -666,7 +665,7 @@ if [ $CLASSCTEST = 0 ]; then
    tr ' ' '\n' < $GETIPV4FULLDN42ALIST > $GETIPV4FULLDN42ALISTL
    sort -n $GETIPV4CURRDN42ALISTL $GETIPV4FULLDN42ALISTL | uniq -u > $GETIPV4SORTDN42ALISTL
    nl $GETIPV4SORTDN42ALISTL | sed 's/ //g' > $GETIPV4MENUDN42A
-   dialog --menu "Choose one IP:" 45 45 40 `cat $GETIPV4MENUDN42A` 2>$GETIPV4MENUDN42ALIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 `cat $GETIPV4MENUDN42A` 2>$GETIPV4MENUDN42ALIST
    /usr/bin/zsh -c "join /tmp/get_ipv4_address_menudn42a.log /tmp/get_ipv4_address_menudn42alist.log > /tmp/get_ipv4_address_menudn42a_ip.log"
    SETDN42AIP=$(cat /tmp/get_ipv4_address_menudn42a_ip.log | awk '{print $2}')
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUDN42AIPFUNC
@@ -708,7 +707,7 @@ echo "Your new IP: $NEWDN42AIP"
    tr ' ' '\n' < $GETIPV4FULLALIST > $GETIPV4FULLALISTL
    sort -n $GETIPV4CURRALISTL $GETIPV4FULLALISTL | uniq -u > $GETIPV4SORTALISTL
    nl $GETIPV4SORTALISTL | sed 's/ //g' > $GETIPV4MENUA
-   dialog --menu "Choose one IP:" 45 45 40 `cat $GETIPV4MENUA` 2>$GETIPV4MENUALIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 `cat $GETIPV4MENUA` 2>$GETIPV4MENUALIST
    /usr/bin/zsh -c "join /tmp/get_ipv4_address_menua.log /tmp/get_ipv4_address_menualist.log > /tmp/get_ipv4_address_menua_ip.log"
    SETAIP=$(cat /tmp/get_ipv4_address_menua_ip.log | awk '{print $2}')
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUAIPFUNC
@@ -748,7 +747,7 @@ echo "Your new IP: $NEWAIP"
    tr ' ' '\n' < $GETIPV4FULLBLIST > $GETIPV4FULLBLISTL
    sort -n $GETIPV4CURRBLISTL $GETIPV4FULLBLISTL | uniq -u > $GETIPV4SORTBLISTL
    nl $GETIPV4SORTBLISTL | sed 's/ //g' > $GETIPV4MENUB
-   dialog --menu "Choose one IP:" 45 45 40 `cat $GETIPV4MENUB` 2>$GETIPV4MENUBLIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 `cat $GETIPV4MENUB` 2>$GETIPV4MENUBLIST
    /usr/bin/zsh -c "join /tmp/get_ipv4_address_menub.log /tmp/get_ipv4_address_menublist.log > /tmp/get_ipv4_address_menub_ip.log"
    SETBIP=$(cat /tmp/get_ipv4_address_menub_ip.log | awk '{print $2}')
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUBIPFUNC
@@ -788,7 +787,7 @@ else
    tr ' ' '\n' < $GETIPV4FULLCLIST > $GETIPV4FULLCLISTL
    sort -n $GETIPV4CURRCLISTL $GETIPV4FULLCLISTL | uniq -u > $GETIPV4SORTCLISTL
    nl $GETIPV4SORTCLISTL | sed 's/ //g' > $GETIPV4MENUC
-   dialog --menu "Choose one IP:" 45 45 40 `cat $GETIPV4MENUC` 2>$GETIPV4MENUCLIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 `cat $GETIPV4MENUC` 2>$GETIPV4MENUCLIST
    /usr/bin/zsh -c "join /tmp/get_ipv4_address_menuc.log /tmp/get_ipv4_address_menuclist.log > /tmp/get_ipv4_address_menuc_ip.log"
    SETCIP=$(cat /tmp/get_ipv4_address_menuc_ip.log | awk '{print $2}')
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUCIPFUNC
