@@ -542,11 +542,21 @@ touch $GETIPV4MENUCIPFUNC
 
 
 ### stage6 // ###
+
+
+### show if list // ###
+   /sbin/ifconfig -a | grep "Link" | egrep -v "lo" | awk '{print $1}' > /tmp/c3d2-networking_ifconfig2.txt
+   IFCONFIG2="/tmp/c3d2-networking_ifconfig2.txt"
+   dialog --backtitle "show available interfaces" --textbox "$IFCONFIG2" 0 0
+### // show if list ###
+
+
 GETIPV4IF="/tmp/get_ipv4_address_if.log"
 touch $GETIPV4IF
 dialog --inputbox "Enter the interface name:" 8 40 2>$GETIPV4IF
 GETIPV4IFVALUE=$(cat $GETIPV4IF | sed 's/#//g' | sed 's/%//g')
-GETIPV4IFCHECK=$(ifconfig | grep Link | awk '{print $1}' | sed 's/://g' | grep $GETIPV4IFVALUE)
+GETIPV4IFCHECK=$(ifconfig -a | grep "Link" | egrep -v "lo" | awk '{print $1}' | sed 's/://g' | grep $GETIPV4IFVALUE)
+/sbin/ifconfig $GETIPV4IFVALUE up
 if [ -z $GETIPV4IFCHECK ]; then
    echo "" # dummy
    echo "" # dummy
@@ -569,8 +579,9 @@ killall -q dhclient
    #/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 25 | grep --color 0x0800
    #echo ""
    #echo "<--- // tcpdump preview --->"
-   echo ""
-   (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 25 | grep --color 0x0800 | awk '{print $10}' 2>&1 > $GETIPV4) &&
+   #echo ""
+   #(/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | grep "0x0800" | awk '{print $10}' 2>&1 > $GETIPV4) &&
+   #(/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | grep "0x0806" | awk '{print $12}' 2>&1 >> $GETIPV4) &&
    #echo ""
 
 TCPDUMP1=10
@@ -581,7 +592,12 @@ echo $TCPDUMP1
 echo "XXX"
 echo "discovering the local network: ($TCPDUMP1 percent)"
 echo "XXX"
-#
+### run // ###
+   echo "" > $GETIPV4
+   ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 4 | egrep "0x0800|0x0806") >> $GETIPV4 2>&1) &
+   #/sleep 1
+   #/( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 2 | grep "0x0806" | awk '{print $12}') >> $GETIPV4 2>&1) &&
+### // run ###
 TCPDUMP1=`expr $TCPDUMP1 + 10`
 sleep 1
 done
