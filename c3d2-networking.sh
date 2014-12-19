@@ -284,6 +284,7 @@ VLANMOD
 #/ echo "" # dummy
 fi
 ETHN=$(lspci | grep "Ethernet" | wc -l)
+WLANN=$(lspci | grep "Wireless" | wc -l)
 if [ X"$ETHN" = X"1" ]; then
    echo "eth0" > /tmp/c3d2-networking_if_1.txt
 fi
@@ -295,6 +296,34 @@ if [ X"$ETHN" = X"3" ]; then
    echo "eth0" > /tmp/c3d2-networking_if_1.txt
    echo "eth1" >> /tmp/c3d2-networking_if_1.txt
    echo "eth2" >> /tmp/c3d2-networking_if_1.txt
+fi
+if [ X"$WLANN" = X"1" ]; then
+   WPAFILE="/etc/wpa_supplicant/wpa_supplicant.conf"
+   if [ -e $WPAFILE ]; then
+      cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE
+      chmod 0600 /etc/wpa_supplicant/wpa_supplicant.conf_*
+   else
+      touch $WPAFILE
+      chmod 0600 $WPAFILE
+   fi
+   WPAC3D2=$(cat /etc/wpa_supplicant/wpa_supplicant.conf | grep 'ssid="C3D2"')
+   if [ -z "$WPAC3D2" ]; then
+/bin/cat <<WPAC3D2INPUT >> /etc/wpa_supplicant/wpa_supplicant.conf
+### C3D2 Wireless Network // ###
+network={
+        ssid="C3D2"
+        key_mgmt=NONE
+        priority=10
+        id_str="C3D2"
+}
+network={
+        ssid="C3D2 5"
+        key_mgmt=NONE
+        priority=11
+}
+### // C3D2 Wireless Network ###
+WPAC3D2INPUT
+   fi
 fi
 #/ touch /tmp/c3d2-networking_if_1.txt
 IFLIST1="/tmp/c3d2-networking_if_1.txt"
