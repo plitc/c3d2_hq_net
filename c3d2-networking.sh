@@ -542,19 +542,40 @@ touch $GETIPV4MENUCIPFUNC
 
 
 ### stage6 // ###
-
-
+#
 ### show if list // ###
-   /sbin/ifconfig -a | grep "Link" | egrep -v "lo" | awk '{print $1}' > /tmp/c3d2-networking_ifconfig2.txt
-   IFCONFIG2="/tmp/c3d2-networking_ifconfig2.txt"
-   dialog --backtitle "show available interfaces" --textbox "$IFCONFIG2" 0 0
+#/ /sbin/ifconfig -a | grep "Link" | egrep -v "lo" | awk '{print $1}' > /tmp/c3d2-networking_ifconfig2.txt
+#/ IFCONFIG2="/tmp/c3d2-networking_ifconfig2.txt"
+#/ dialog --backtitle "show available interfaces" --textbox "$IFCONFIG2" 0 0
+dialog --radiolist "Select on Interface:" 15 75 12 \
+   1 "eth0       (regular environment - untagged / vlan forbidden)" on\
+   2 "wlan0      (regular environment)" off\
+   3 "eth0.100   (vlan100 - hq ipv4 telekom / ipv6 sixxs)" off\
+   4 "eth0.101   (vlan101 - hq ipv4 ipredator / ipv6 ipredator)" off\
+   5 "eth0.102   (vlan102 - hq testing network)" off\
+   6 "eth0.103   (vlan103 - hq testing network)" off\
+   7 "eth0.104   (vlan104 - hq testing network)" off\
+   8 "eth0.105   (vlan105 - hq testing network)" off\
+    2>/tmp/c3d2-networking_ifconfig3.txt
+cat /tmp/c3d2-networking_ifconfig3.txt | cut -c1 > /tmp/c3d2-networking_ifconfig4.txt
+IFCHOOSELIST="/tmp/c3d2-networking_ifconfig5.txt"
+/bin/echo "1 eth0" > $IFCHOOSELIST
+/bin/echo "2 wlan0" >> $IFCHOOSELIST
+/bin/echo "3 eth0.100" >> $IFCHOOSELIST
+/bin/echo "4 eth0.101" >> $IFCHOOSELIST
+/bin/echo "5 eth0.102" >> $IFCHOOSELIST
+/bin/echo "6 eth0.103" >> $IFCHOOSELIST
+/bin/echo "7 eth0.104" >> $IFCHOOSELIST
+/bin/echo "8 eth0.105" >> $IFCHOOSELIST
+/usr/bin/zsh -c "join /tmp/c3d2-networking_ifconfig4.txt /tmp/c3d2-networking_ifconfig5.txt > /tmp/c3d2-networking_ifconfig6.txt"
+sleep 1
+GETIPV4IFVALUE=$(cat /tmp/c3d2-networking_ifconfig6.txt | awk '{print $2}')
 ### // show if list ###
-
-
+#
 GETIPV4IF="/tmp/get_ipv4_address_if.log"
 touch $GETIPV4IF
-dialog --inputbox "Enter the interface name:" 8 40 2>$GETIPV4IF
-GETIPV4IFVALUE=$(cat $GETIPV4IF | sed 's/#//g' | sed 's/%//g')
+#/ dialog --inputbox "Enter the interface name:" 8 40 2>$GETIPV4IF
+#/ GETIPV4IFVALUE=$(cat $GETIPV4IF | sed 's/#//g' | sed 's/%//g')
 GETIPV4IFCHECK=$(ifconfig -a | grep "Link" | egrep -v "lo" | awk '{print $1}' | sed 's/://g' | grep $GETIPV4IFVALUE)
 /sbin/ifconfig $GETIPV4IFVALUE up
 if [ -z $GETIPV4IFCHECK ]; then
@@ -562,8 +583,8 @@ if [ -z $GETIPV4IFCHECK ]; then
    echo "" # dummy
    echo "ERROR: interface doesn't exist or isn't showing up"
    exit 1
-else
-   echo "" # dummy
+#/ else
+#/ echo "" # dummy
 fi
 ### // stage6 ###
 
@@ -605,10 +626,10 @@ done
 
 echo "<--- --- --- --- --- --- --- --- --->"
 
-CLASSCTEST=$(grep "192.168" $GETIPV4 | wc -l | sed 's/ //g')
-CLASSBTEST=$(grep "172.16" $GETIPV4 | wc -l | sed 's/ //g')
+CLASSCTEST=$(grep "192.168." $GETIPV4 | wc -l | sed 's/ //g')
+CLASSBTEST=$(grep "172.16." $GETIPV4 | wc -l | sed 's/ //g')
 CLASSATEST=$(grep "10." $GETIPV4 | wc -l | sed 's/ //g')
-CLASSDN42ATEST=$(grep "172.22" $GETIPV4 | wc -l | sed 's/ //g')
+CLASSDN42ATEST=$(grep "172.22." $GETIPV4 | wc -l | sed 's/ //g')
 
 if [ $CLASSCTEST = 0 ]; then
    echo "ERROR: can't find class C network, try again ..."
@@ -725,7 +746,7 @@ echo "Your new IP: $NEWAIP"
    echo $GETIPV4FULLB > $GETIPV4FULLBLIST
    tr ' ' '\n' < $GETIPV4CURRBLIST > $GETIPV4CURRBLISTL
    tr ' ' '\n' < $GETIPV4FULLBLIST > $GETIPV4FULLBLISTL
-   sort -n $GETIPV4CURRBLISTL $GETIPV4FULLBLISTL | uniq -u > $GETIPV4SORTCLISTL
+   sort -n $GETIPV4CURRBLISTL $GETIPV4FULLBLISTL | uniq -u > $GETIPV4SORTBLISTL
    nl $GETIPV4SORTBLISTL | sed 's/ //g' > $GETIPV4MENUB
    dialog --menu "Choose one IP:" 45 45 40 `cat $GETIPV4MENUB` 2>$GETIPV4MENUBLIST
    /usr/bin/zsh -c "join /tmp/get_ipv4_address_menub.log /tmp/get_ipv4_address_menublist.log > /tmp/get_ipv4_address_menub_ip.log"
