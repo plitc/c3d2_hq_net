@@ -668,16 +668,13 @@ if [ $CLASSCTEST = 0 ]; then
    dialog --menu "Choose one (free) IP:" 45 45 40 `cat $GETIPV4MENUDN42A` 2>$GETIPV4MENUDN42ALIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menudn42a.log > /tmp/get_ipv4_address_menudn42a_fix.log
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menudn42a_fix.log /tmp/get_ipv4_address_menudn42alist.log | awk '{print $2}' > /tmp/get_ipv4_address_menudn42a_ip.log
 ### // fix ###
-   /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menudn42a_fix.log /tmp/get_ipv4_address_menudn42alist.log > /tmp/get_ipv4_address_menudn42a_ip.log"
+#/ /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menudn42a_fix.log /tmp/get_ipv4_address_menudn42alist.log > /tmp/get_ipv4_address_menudn42a_ip.log"
    SETDN42AIP=$(cat /tmp/get_ipv4_address_menudn42a_ip.log | awk '{print $2}')
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUDN42AIPFUNC
    GETIPV4MENUDN42AIPFUNCN=$(cat $GETIPV4MENUDN42AIPFUNC | sed 's/#//g' | sed 's/%//g')
    if [ $GETIPV4MENUDN42AIPFUNCN = 1 ]; then
-#      ###
-#      ###
-#      ###
-#      ###
       ip addr flush dev $GETIPV4IFVALUE
       ip addr add $SETDN42AIP/24 dev $GETIPV4IFVALUE
    else
@@ -713,16 +710,13 @@ echo "Your new IP: $NEWDN42AIP"
    dialog --menu "Choose one (free) IP:" 45 45 40 `cat $GETIPV4MENUA` 2>$GETIPV4MENUALIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menua.log > /tmp/get_ipv4_address_menua_fix.log
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menua_fix.log /tmp/get_ipv4_address_menualist.log | awk '{print $2}' > /tmp/get_ipv4_address_menua_ip.log
 ### // fix ###
-   /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menua_fix.log /tmp/get_ipv4_address_menualist.log > /tmp/get_ipv4_address_menua_ip.log"
+#/ /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menua_fix.log /tmp/get_ipv4_address_menualist.log > /tmp/get_ipv4_address_menua_ip.log"
    SETAIP=$(cat /tmp/get_ipv4_address_menua_ip.log | awk '{print $2}')
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUAIPFUNC
    GETIPV4MENUAIPFUNCN=$(cat $GETIPV4MENUAIPFUNC | sed 's/#//g' | sed 's/%//g')
    if [ $GETIPV4MENUCIPFUNCN = 1 ]; then
-#      ###
-#      ###
-#      ###
-#      ###
       ip addr flush dev $GETIPV4IFVALUE
       ip addr add $SETAIP/24 dev $GETIPV4IFVALUE
    else
@@ -756,16 +750,13 @@ echo "Your new IP: $NEWAIP"
    dialog --menu "Choose one (free) IP:" 45 45 40 `cat $GETIPV4MENUB` 2>$GETIPV4MENUBLIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menub.log > /tmp/get_ipv4_address_menub_fix.log
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menub_fix.log /tmp/get_ipv4_address_menublist.log | awk '{print $2}' > /tmp/get_ipv4_address_menub_ip.log
 ### // fix ###
-   /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menub_fix.log /tmp/get_ipv4_address_menublist.log > /tmp/get_ipv4_address_menub_ip.log"
+#/ /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menub_fix.log /tmp/get_ipv4_address_menublist.log > /tmp/get_ipv4_address_menub_ip.log"
    SETBIP=$(cat /tmp/get_ipv4_address_menub_ip.log | awk '{print $2}')
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUBIPFUNC
    GETIPV4MENUBIPFUNCN=$(cat $GETIPV4MENUBIPFUNC | sed 's/#//g' | sed 's/%//g')
    if [ $GETIPV4MENUBIPFUNCN = 1 ]; then
-#      ###
-#      ###
-#      ###
-#      ###
       ip addr flush dev $GETIPV4IFVALUE
       ip addr add $SETBIP/24 dev $GETIPV4IFVALUE
    else   
@@ -799,16 +790,13 @@ else
    dialog --menu "Choose one (free) IP:" 45 45 40 `cat $GETIPV4MENUC` 2>$GETIPV4MENUCLIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menuc.log > /tmp/get_ipv4_address_menuc_fix.log
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menuc_fix.log /tmp/get_ipv4_address_menuclist.log | awk '{print $2}' > /tmp/get_ipv4_address_menuc_ip.log
 ### // fix ###
-   /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menuc_fix.log /tmp/get_ipv4_address_menuclist.log > /tmp/get_ipv4_address_menuc_ip.log"
+#/ /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menuc_fix.log /tmp/get_ipv4_address_menuclist.log > /tmp/get_ipv4_address_menuc_ip.log"
    SETCIP=$(cat /tmp/get_ipv4_address_menuc_ip.log | awk '{print $2}')
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUCIPFUNC
    GETIPV4MENUCIPFUNCN=$(cat $GETIPV4MENUCIPFUNC | sed 's/#//g' | sed 's/%//g')
    if [ $GETIPV4MENUCIPFUNCN = 1 ]; then
-#      ###
-#      ###
-#      ###
-#      ###
       ip addr flush dev $GETIPV4IFVALUE
       ip addr add $SETCIP/24 dev $GETIPV4IFVALUE
    else
@@ -853,11 +841,6 @@ TCPDUMP2=`expr $TCPDUMP2 + 10`
 sleep 1
 done
 ) | dialog --title "tcpdump - router discovery" --gauge "discover local router" 20 70 0
-
-
-
-
-
    nl $GETIPV4ROUTER | sed 's/ //g' > $GETIPV4ROUTERLIST
    dialog --menu "Choose one default Router:" 10 30 40 `cat $GETIPV4ROUTERLIST` 2>$GETIPV4ROUTERLISTMENU
    /usr/bin/zsh -c "join /tmp/get_ipv4_router_list.log /tmp/get_ipv4_router_list_menu.log > /tmp/get_ipv4_router_list_menu_choosed.log"
