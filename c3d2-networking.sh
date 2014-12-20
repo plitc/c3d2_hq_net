@@ -671,7 +671,7 @@ sort /tmp/get_ipv4_address_menudn42a.log > /tmp/get_ipv4_address_menudn42a_fix.l
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menudn42a_fix.log /tmp/get_ipv4_address_menudn42alist.log | awk '{print $2}' > /tmp/get_ipv4_address_menudn42a_ip.log
 ### // fix ###
 #/ /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menudn42a_fix.log /tmp/get_ipv4_address_menudn42alist.log > /tmp/get_ipv4_address_menudn42a_ip.log"
-   SETDN42AIP=$(cat /tmp/get_ipv4_address_menudn42a_ip.log | awk '{print $2}')
+   SETDN42AIP=$(cat /tmp/get_ipv4_address_menudn42a_ip.log)
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUDN42AIPFUNC
    GETIPV4MENUDN42AIPFUNCN=$(cat $GETIPV4MENUDN42AIPFUNC | sed 's/#//g' | sed 's/%//g')
    if [ $GETIPV4MENUDN42AIPFUNCN = 1 ]; then
@@ -713,7 +713,7 @@ sort /tmp/get_ipv4_address_menua.log > /tmp/get_ipv4_address_menua_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menua_fix.log /tmp/get_ipv4_address_menualist.log | awk '{print $2}' > /tmp/get_ipv4_address_menua_ip.log
 ### // fix ###
 #/ /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menua_fix.log /tmp/get_ipv4_address_menualist.log > /tmp/get_ipv4_address_menua_ip.log"
-   SETAIP=$(cat /tmp/get_ipv4_address_menua_ip.log | awk '{print $2}')
+   SETAIP=$(cat /tmp/get_ipv4_address_menua_ip.log)
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUAIPFUNC
    GETIPV4MENUAIPFUNCN=$(cat $GETIPV4MENUAIPFUNC | sed 's/#//g' | sed 's/%//g')
    if [ $GETIPV4MENUCIPFUNCN = 1 ]; then
@@ -753,7 +753,7 @@ sort /tmp/get_ipv4_address_menub.log > /tmp/get_ipv4_address_menub_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menub_fix.log /tmp/get_ipv4_address_menublist.log | awk '{print $2}' > /tmp/get_ipv4_address_menub_ip.log
 ### // fix ###
 #/ /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menub_fix.log /tmp/get_ipv4_address_menublist.log > /tmp/get_ipv4_address_menub_ip.log"
-   SETBIP=$(cat /tmp/get_ipv4_address_menub_ip.log | awk '{print $2}')
+   SETBIP=$(cat /tmp/get_ipv4_address_menub_ip.log)
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUBIPFUNC
    GETIPV4MENUBIPFUNCN=$(cat $GETIPV4MENUBIPFUNC | sed 's/#//g' | sed 's/%//g')
    if [ $GETIPV4MENUBIPFUNCN = 1 ]; then
@@ -793,7 +793,7 @@ sort /tmp/get_ipv4_address_menuc.log > /tmp/get_ipv4_address_menuc_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menuc_fix.log /tmp/get_ipv4_address_menuclist.log | awk '{print $2}' > /tmp/get_ipv4_address_menuc_ip.log
 ### // fix ###
 #/ /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menuc_fix.log /tmp/get_ipv4_address_menuclist.log > /tmp/get_ipv4_address_menuc_ip.log"
-   SETCIP=$(cat /tmp/get_ipv4_address_menuc_ip.log | awk '{print $2}')
+   SETCIP=$(cat /tmp/get_ipv4_address_menuc_ip.log)
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUCIPFUNC
    GETIPV4MENUCIPFUNCN=$(cat $GETIPV4MENUCIPFUNC | sed 's/#//g' | sed 's/%//g')
    if [ $GETIPV4MENUCIPFUNCN = 1 ]; then
