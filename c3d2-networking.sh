@@ -45,7 +45,7 @@ Debian)
 ARPING=$(/usr/bin/which arping)
 ARPSCAN=$(/usr/bin/which arp-scan)
 DIALOG=$(/usr/bin/which dialog)
-ZSH=$(/usr/bin/which zsh)
+#/ ZSH=$(/usr/bin/which zsh) # deprecated
 IFCONFIG=$(/usr/bin/which ifconfig)
 TCPDUMP=$(/usr/bin/which tcpdump)
 VLAN=$(/usr/bin/dpkg -l | grep vlan | awk '{print $2}')
@@ -212,16 +212,16 @@ if [ -z $DIALOG ]; then
 #/ else
 #/ echo "" # dummy
 fi
-if [ -z $ZSH ]; then
-   echo "<--- --- --->"
-   echo "need zsh shell"
-   echo "<--- --- --->"
-   apt-get install -y zsh
-   cd -
-   echo "<--- --- --->"
-#/ else
-#/ echo "" # dummy
-fi
+#/ if [ -z $ZSH ]; then          # deprecated
+#/    echo "<--- --- --->"       # deprecated
+#/    echo "need zsh shell"      # deprecated
+#/    echo "<--- --- --->"       # deprecated
+#/    apt-get install -y zsh     # deprecated
+#/    cd -                       # deprecated
+#/    echo "<--- --- --->"       # deprecated
+#/ else                          # deprecated
+#/ echo "" # dummy               # deprecated
+#/ fi                            # deprecated
 if [ -z $IFCONFIG ]; then
    echo "<--- --- --->"
    echo "need ifconfig"
@@ -342,7 +342,10 @@ nl $IFLIST1 | sed 's/ //g' > $IFLIST2
 dialog --menu "Choose one VLAN RAW Interface:" 15 15 15 `cat $IFLIST2` 2>$IFLIST3
 #/ GETIF=$(cat $IFLIST3 | cut -c1)
 #/ echo $GETIF
-/usr/bin/zsh -c "join /tmp/c3d2-networking_if_2.txt /tmp/c3d2-networking_if_3.txt > /tmp/c3d2-networking_if_4.txt"
+### fix2 // ###
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_if_2.txt /tmp/c3d2-networking_if_3.txt > /tmp/c3d2-networking_if_4.txt
+#/ /usr/bin/zsh -c "join /tmp/c3d2-networking_if_2.txt /tmp/c3d2-networking_if_3.txt > /tmp/c3d2-networking_if_4.txt"
+### // fix2 ###
 GETIF=$(cat /tmp/c3d2-networking_if_4.txt | awk '{print $2}')
 INTERFACES=$(cat /etc/network/interfaces | grep "c3d2-networking" | head -n1 | awk '{print $2}')
 if [ -z $INTERFACES ]; then
@@ -566,7 +569,10 @@ IFCHOOSELIST="/tmp/c3d2-networking_ifconfig5.txt"
 /bin/echo "6 eth0.103" >> $IFCHOOSELIST
 /bin/echo "7 eth0.104" >> $IFCHOOSELIST
 /bin/echo "8 eth0.105" >> $IFCHOOSELIST
-/usr/bin/zsh -c "join /tmp/c3d2-networking_ifconfig4.txt /tmp/c3d2-networking_ifconfig5.txt > /tmp/c3d2-networking_ifconfig6.txt"
+### fix3 // ###
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_ifconfig4.txt /tmp/c3d2-networking_ifconfig5.txt > /tmp/c3d2-networking_ifconfig6.txt
+#/ /usr/bin/zsh -c "join /tmp/c3d2-networking_ifconfig4.txt /tmp/c3d2-networking_ifconfig5.txt > /tmp/c3d2-networking_ifconfig6.txt"
+### // fix3 ###
 sleep 1
 GETIPV4IFVALUE=$(cat /tmp/c3d2-networking_ifconfig6.txt | awk '{print $2}')
 ### // show if list ###
@@ -843,7 +849,10 @@ done
 ) | dialog --title "tcpdump - router discovery" --gauge "discover local router" 20 70 0
    nl $GETIPV4ROUTER | sed 's/ //g' > $GETIPV4ROUTERLIST
    dialog --menu "Choose one default Router:" 10 30 40 `cat $GETIPV4ROUTERLIST` 2>$GETIPV4ROUTERLISTMENU
-   /usr/bin/zsh -c "join /tmp/get_ipv4_router_list.log /tmp/get_ipv4_router_list_menu.log > /tmp/get_ipv4_router_list_menu_choosed.log"
+### fix4 // ###
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_router_list.log /tmp/get_ipv4_router_list_menu.log > /tmp/get_ipv4_router_list_menu_choosed.log
+#/   /usr/bin/zsh -c "join /tmp/get_ipv4_router_list.log /tmp/get_ipv4_router_list_menu.log > /tmp/get_ipv4_router_list_menu_choosed.log"
+### // fix4 ###
    SETROUTERIP=$(cat /tmp/get_ipv4_router_list_menu_choosed.log | awk '{print $2}')
 
    echo "<--- set default router // --->"
