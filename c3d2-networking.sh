@@ -473,7 +473,7 @@ if [ $? -eq 0 ]
 then
       dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --msgbox "It works!" 0 0
    /bin/rm -f /tmp/c3d2-networking_ipv4dnstest*
-dialog --title "Network Check" --backtitle "Network Check" --yesno "It works, you can chancel this script. If you need vlan go ahead." 5 70
+dialog --title "Network Check" --backtitle "Network Check" --yesno "it works you can cancel the script. if you need vlan go ahead" 5 70
 response3=$?
 case $response3 in
    0)
