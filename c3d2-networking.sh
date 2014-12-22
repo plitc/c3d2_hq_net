@@ -504,7 +504,7 @@ else
       /bin/echo "ERROR: server isn't responsive"
       /bin/sleep 2
    /bin/rm -f /tmp/c3d2-networking_ipv4iptest*
-dialog --title "IPv4 is broken" --backtitle "IPv4 is broken" --msgbox "ERROR: sorry your dns & routing is totaly broken" 5 55
+dialog --title "IPv4 is broken" --backtitle "IPv4 is broken" --msgbox "ERROR: sorry your dns & routing is totally broken" 5 55
 #/ exit 1
 fi
 #/ /bin/rm -f /tmp/c3d2-networking_ipv4iptest*
