@@ -42,6 +42,7 @@ MYNAME=$(whoami)
 case $DEBIAN in
 Debian)
 ### stage2 // ###
+PING=$(/usr/bin/which ping)
 ARPING=$(/usr/bin/which arping)
 ARPSCAN=$(/usr/bin/which arp-scan)
 DIALOG=$(/usr/bin/which dialog)
@@ -192,6 +193,16 @@ esac
 #/ fi
 #/ else
 #/   echo "" # dummy
+fi
+if [ -z $PING ]; then
+   echo "<--- --- --->"
+   echo "need ping (iputils-ping)"
+   echo "<--- --- --->"
+   apt-get install -y iputils-ping
+   cd -
+   echo "<--- --- --->"
+#/ else
+#/ echo "" # dummy
 fi
 if [ -z $ARPING ]; then
    echo "<--- --- --->"
@@ -448,6 +459,57 @@ rm -f /tmp/c3d2-networking*
 ### // clean up 1 ###
 #
 ### stage4 // ###
+#
+IPV4DNSTEST="/tmp/c3d2-networking_ipv4dnstest1.txt"
+IPV4DNSTESTNEW="/tmp/c3d2-networking_ipv4dnstest2.txt"
+#/ IPV4DNSTESTVALUE="/tmp/c3d2-networking_ipv4dnstest3.txt"
+touch $IPV4DNSTEST
+/bin/chmod 0600 $IPV4DNSTEST
+/bin/echo "dnscache.berlin.ccc.de" > $IPV4DNSTEST
+dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --inputbox "Enter a domain for analysis: (for example dnscache.berlin.ccc.de/213.73.91.35)" 8 85 `cat $IPV4DNSTEST` 2>$IPV4DNSTESTNEW
+IPV4DNSTESTVALUE=$(/bin/cat /tmp/c3d2-networking_ipv4dnstest2.txt | sed 's/#//g' | sed 's/%//g' | sed 's/ //g')
+/bin/ping -q -c5 $IPV4DNSTESTVALUE > /dev/null
+if [ $? -eq 0 ]
+then
+      dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --msgbox "It works!" 0 0
+   /bin/rm -f /tmp/c3d2-networking_ipv4dnstest*
+   exit 1
+else
+      dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --msgbox "ERROR: can't ping!" 0 0
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "ERROR: server isn't responsive"
+      /bin/sleep 2
+   /bin/rm -f /tmp/c3d2-networking_ipv4dnstest*
+#/ exit 1
+      dialog --title "IPv4 DNS Test results" --backtitle "IPv4 DNS Test results" --msgbox "ERROR: your DNS looks broken, please check your /etc/resolv.conf & /etc/nsswitch.conf" 5 90
+IPV4IPTEST="/tmp/c3d2-networking_ipv4iptest1.txt"
+IPV4IPTESTNEW="/tmp/c3d2-networking_ipv4iptest2.txt"
+#/ IPV4IPTESTVALUE="/tmp/c3d2-networking_ipv4iptest3.txt"
+touch $IPV4IPTEST
+/bin/chmod 0600 $IPV4IPTEST
+/bin/echo "213.73.91.35" > $IPV4IPTEST
+dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --inputbox "Enter a IP for analysis: (for example 213.73.91.35/dnscache.berlin.ccc.de)" 8 85 `cat $IPV4IPTEST` 2>$IPV4IPTESTNEW
+IPV4IPTESTVALUE=$(/bin/cat /tmp/c3d2-networking_ipv4iptest2.txt | sed 's/#//g' | sed 's/%//g' | sed 's/ //g')
+/bin/ping -q -c5 $IPV4IPTESTVALUE > /dev/null
+if [ $? -eq 0 ]
+then
+      dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --msgbox "It works!" 0 0
+   /bin/rm -f /tmp/c3d2-networking_ipv4iptest*
+#/ exit 0
+else
+      dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --msgbox "ERROR: can't ping!" 0 0
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "ERROR: server isn't responsive"
+      /bin/sleep 2
+   /bin/rm -f /tmp/c3d2-networking_ipv4iptest*
+dialog --title "IPv4 is broken" --backtitle "IPv4 is broken" --msgbox "ERROR: sorry your dns & routing is totaly broken" 5 55
+#/ exit 1
+fi
+#/ /bin/rm -f /tmp/c3d2-networking_ipv4iptest*
+fi
+#/ /bin/rm -f /tmp/c3d2-networking_ipv4dnstest*
 #
 IPCHECK=$(ip a | grep "inet" | egrep -v "127.0.0.1" | awk '{print $2}' | head -n 1)
 if [ -z "$IPCHECK" ]; then

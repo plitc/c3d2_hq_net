@@ -6,10 +6,10 @@ set ipv4/ipv6 network configs
 Dependencies
 ============
 * Linux (Debian)
+   * iputils-ping
    * arping
    * arp-scan
    * dialog
-   * zsh
    * ifconfig
    * tcpdump
    * vlan
