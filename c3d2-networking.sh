@@ -89,7 +89,7 @@ cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplican
 #/ sleep 1
 #/ exit 1
 #/ (
-dialog --title "disable Network-Manager" --backtitle "disable Network-Manager" --yesno "well, your current setup use an network-manager, we don't like that, can we disable it ?" 8 95
+dialog --title "disable Network-Manager" --backtitle "disable Network-Manager" --yesno "well, your current setup use an network-manager, we don't like that, can we disable it ? (press ESC to skip)" 8 95
 #
 response1=$?
 case $response1 in
@@ -186,7 +186,7 @@ fi
       /bin/echo "" # dummy
       /bin/echo "" # dummy
       /bin/echo "[ESC] key pressed."
-      exit 1
+#/ exit 0
 ;;
 esac
 #/ )
