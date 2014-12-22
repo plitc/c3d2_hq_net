@@ -473,7 +473,25 @@ if [ $? -eq 0 ]
 then
       dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --msgbox "It works!" 0 0
    /bin/rm -f /tmp/c3d2-networking_ipv4dnstest*
-   exit 1
+dialog --title "Network Check" --backtitle "Network Check" --yesno "It works, you can chancel this script. If you need vlan go ahead." 5 70
+response3=$?
+case $response3 in
+   0)
+      /bin/echo "" # dummy
+#/ exit 0
+;;
+   1)
+      /bin/echo "" # dummy
+      exit 0
+;;
+   255)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "[ESC] key pressed."
+      exit 0
+;;
+esac
+#/   exit 0
 else
       dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --msgbox "ERROR: can't ping!" 0 0
       /bin/echo "" # dummy
@@ -504,7 +522,7 @@ else
       /bin/echo "ERROR: server isn't responsive"
       /bin/sleep 2
    /bin/rm -f /tmp/c3d2-networking_ipv4iptest*
-dialog --title "IPv4 is broken" --backtitle "IPv4 is broken" --msgbox "ERROR: sorry your dns & routing is totally broken" 5 55
+dialog --title "IPv4 is broken" --backtitle "IPv4 is broken" --msgbox "ERROR: sorry your dns & routing is totally broken :(" 5 60
 #/ exit 1
 fi
 #/ /bin/rm -f /tmp/c3d2-networking_ipv4iptest*
@@ -516,7 +534,7 @@ if [ -z "$IPCHECK" ]; then
    echo "" # FUU
 else
 
-dialog --title "get_ipv4_address (experimental)" --backtitle "get_ipv4_address (experimental)" --yesno "well, none of your interface has an ip address, we can try manually" 5 72
+dialog --title "get_ipv4_address (experimental)" --backtitle "get_ipv4_address (experimental)" --yesno "the next steps are experimental but we try" 5 48
 response2=$?
 case $response2 in
    0)
@@ -1080,14 +1098,14 @@ rm -rf /tmp/get_ipv4*
    1)
       /bin/echo "" # dummy
       /bin/echo "" # dummy
-      /bin/echo "ERROR: :("
-      exit 1
+      /bin/echo "Have a nice day"
+      exit 0
 ;;
    255)
       /bin/echo "" # dummy
       /bin/echo "" # dummy
       /bin/echo "[ESC] key pressed."
-      exit 1
+      exit 0
 ;;
 esac
 #/ exit 0
