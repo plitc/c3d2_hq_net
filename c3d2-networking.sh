@@ -947,11 +947,20 @@ awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_router_list.l
 #/   /usr/bin/zsh -c "join /tmp/get_ipv4_router_list.log /tmp/get_ipv4_router_list_menu.log > /tmp/get_ipv4_router_list_menu_choosed.log"
 ### // fix4 ###
    SETROUTERIP=$(cat /tmp/get_ipv4_router_list_menu_choosed.log | awk '{print $2}')
-
+if [ -z $SETROUTERIP ]; then
+   SETROUTERIPNEW="/tmp/get_ipv4_router_new.txt"
+   dialog --title "Default Router IP" --backtitle "Default Router IP" --inputbox "We can't find a valid router with sniffing OSPF, enter the ip manually" 5 75 2>$SETROUTERIPNEW
+   SETROUTERIPNEWVALUE=$(cat /tmp/get_ipv4_router_new.txt)
+   echo "<--- set default router // --->"
+   route del default
+   route add default gw $SETROUTERIPNEWVALUE dev $GETIPV4IFVALUE
+   echo "<--- // set default router --->"
+else
    echo "<--- set default router // --->"
    route del default
    route add default gw $SETROUTERIP dev $GETIPV4IFVALUE
    echo "<--- // set default router --->"
+fi
 
 # <--- --- --- --- // ROUTER --- --- --- ---//
 
