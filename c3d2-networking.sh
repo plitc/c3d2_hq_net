@@ -49,7 +49,8 @@ DIALOG=$(/usr/bin/which dialog)
 IFCONFIG=$(/usr/bin/which ifconfig)
 TCPDUMP=$(/usr/bin/which tcpdump)
 VLAN=$(/usr/bin/dpkg -l | grep vlan | awk '{print $2}')
-NETMANAGER=$(/etc/init.d/network-manager status | grep enabled | awk '{print $4}' | sed 's/)//g')
+#/ NETMANAGER=$(/etc/init.d/network-manager status | grep enabled | awk '{print $4}' | sed 's/)//g')
+C3D2CONFIG=$(cat /etc/network/interfaces | grep "c3d2-network-config-start" | awk '{print $4}')
 BACKUPDATE=$(date +%Y-%m-%d-%H%M%S)
 ### // stage2 ###
 #
@@ -71,7 +72,14 @@ else
    echo "ERROR: You need Debian 8 (Jessie) Version"
    exit 1
 fi
-if [ X"$NETMANAGER" = X"enabled" ]; then
+if [ X"$C3D2CONFIG" = X"c3d2-network-config-start" ]; then
+   echo "" # dummy
+else
+### backup // ###
+cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE
+cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE
+### // backup ###
+#/ if [ X"$NETMANAGER" = X"enabled" ]; then
 #/ echo "Well, your current Setup use an Network-Manager, we don't like it"
 #/ echo "" # dummy
 #/ echo "run   /etc/init.d/network-manager stop; update-rc.d network-manager remove; /etc/init.d/networking stop   manually"
@@ -102,6 +110,8 @@ case $response1 in
       cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE
       touch /tmp/c3d2-networking_new_config.txt
 /bin/cat <<INTERFACELOOPBACK > /etc/network/interfaces
+### ### ### c3d2-network-config-start // ### ### ###
+#
 ### loopback // ###
 auto lo
 iface lo inet loopback
@@ -179,8 +189,9 @@ fi
 ;;
 esac
 #/ )
-else
-   echo "" # dummy
+#/ fi
+#/ else
+#/   echo "" # dummy
 fi
 if [ -z $ARPING ]; then
    echo "<--- --- --->"
@@ -343,10 +354,10 @@ dialog --menu "Choose one VLAN RAW Interface:" 15 15 15 `cat $IFLIST2` 2>$IFLIST
 #/ GETIF=$(cat $IFLIST3 | cut -c1)
 #/ echo $GETIF
 ### fix2 // ###
-awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_if_2.txt /tmp/c3d2-networking_if_3.txt > /tmp/c3d2-networking_if_4.txt
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_if_2.txt /tmp/c3d2-networking_if_3.txt | awk '{print $2}' > /tmp/c3d2-networking_if_4.txt
 #/ /usr/bin/zsh -c "join /tmp/c3d2-networking_if_2.txt /tmp/c3d2-networking_if_3.txt > /tmp/c3d2-networking_if_4.txt"
 ### // fix2 ###
-GETIF=$(cat /tmp/c3d2-networking_if_4.txt | awk '{print $2}')
+GETIF=$(cat /tmp/c3d2-networking_if_4.txt)
 INTERFACES=$(cat /etc/network/interfaces | grep "c3d2-networking" | head -n1 | awk '{print $2}')
 if [ -z $INTERFACES ]; then
     echo "" # dummy
@@ -388,6 +399,8 @@ iface $GETIF.105 inet manual
         vlan-raw-device $GETIF
 #
 ### // c3d2-networking-vlan-end ###
+#
+### ### ### // c3d2-network-config-end ### ### ###
 INTERFACEVLAN
 #/cd -
 #/echo "<--- --- --->"
@@ -570,11 +583,11 @@ IFCHOOSELIST="/tmp/c3d2-networking_ifconfig5.txt"
 /bin/echo "7 eth0.104" >> $IFCHOOSELIST
 /bin/echo "8 eth0.105" >> $IFCHOOSELIST
 ### fix3 // ###
-awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_ifconfig4.txt /tmp/c3d2-networking_ifconfig5.txt > /tmp/c3d2-networking_ifconfig6.txt
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_ifconfig5.txt /tmp/c3d2-networking_ifconfig4.txt | awk '{print $2}' > /tmp/c3d2-networking_ifconfig6.txt
 #/ /usr/bin/zsh -c "join /tmp/c3d2-networking_ifconfig4.txt /tmp/c3d2-networking_ifconfig5.txt > /tmp/c3d2-networking_ifconfig6.txt"
 ### // fix3 ###
 sleep 1
-GETIPV4IFVALUE=$(cat /tmp/c3d2-networking_ifconfig6.txt | awk '{print $2}')
+GETIPV4IFVALUE=$(cat /tmp/c3d2-networking_ifconfig6.txt)
 ### // show if list ###
 GETIPV4IF="/tmp/get_ipv4_address_if.log"
 touch $GETIPV4IF
