@@ -335,13 +335,32 @@ if [ X"$WLANN" = X"1" ]; then
 network={
         ssid="C3D2"
         key_mgmt=NONE
-        priority=10
+        priority=20
         id_str="C3D2"
 }
 network={
         ssid="C3D2 5"
         key_mgmt=NONE
-        priority=11
+        priority=21
+}
+network={
+        ssid="C3D2.swedbert"
+        key_mgmt=NONE
+        priority=19
+}
+# network={
+#         ssid="C3D2.sixxsbert"
+#         # psk=""
+#         proto=RSN
+#         key_mgmt=WPA-PSK
+#         pairwise=CCMP
+#         auth_alg=OPEN
+#         priority=18
+# }
+network={
+        ssid="C3D2.42bertl"
+        key_mgmt=NONE
+        priority=17
 }
 ### // C3D2 Wireless Network ###
 WPAC3D2INPUT
