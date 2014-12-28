@@ -245,12 +245,12 @@ fi
 #/ echo "" # dummy               # deprecated
 #/ fi                            # deprecated
 if [ -z $IFCONFIG ]; then
-   echo "<--- --- --->"
-   echo "need ifconfig"
-   echo "<--- --- --->"
-   apt-get install -y ifconfig
-   cd -
-   echo "<--- --- --->"
+    echo "<--- --- --->"
+    echo "need ifconfig"
+    echo "<--- --- --->"
+    apt-get install -y ifconfig
+    cd -
+    echo "<--- --- --->"
 #/ else
 #/ echo "" # dummy
 fi
@@ -362,6 +362,15 @@ network={
         key_mgmt=NONE
         priority=17
 }
+#
+### public hotspots // ###
+network={
+        ssid="NZ@McD1"
+        key_mgmt=NONE
+        priority=15
+}
+### // public hotspots ###
+#
 ### // C3D2 Wireless Network ###
 WPAC3D2INPUT
    fi
@@ -490,7 +499,7 @@ IPV4DNSTESTVALUE=$(/bin/cat /tmp/c3d2-networking_ipv4dnstest2.txt | sed 's/#//g'
 /bin/ping -q -c5 $IPV4DNSTESTVALUE > /dev/null
 if [ $? -eq 0 ]
 then
-      dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --msgbox "It works!" 0 0
+   dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --msgbox "It works!" 0 0
    /bin/rm -f /tmp/c3d2-networking_ipv4dnstest*
 dialog --title "Network Check" --backtitle "Network Check" --yesno "it works you can cancel the script. if you need vlan go ahead" 5 70
 response3=$?
@@ -531,15 +540,15 @@ IPV4IPTESTVALUE=$(/bin/cat /tmp/c3d2-networking_ipv4iptest2.txt | sed 's/#//g' |
 /bin/ping -q -c5 $IPV4IPTESTVALUE > /dev/null
 if [ $? -eq 0 ]
 then
-      dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --msgbox "It works!" 0 0
+   dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --msgbox "It works!" 0 0
    /bin/rm -f /tmp/c3d2-networking_ipv4iptest*
 #/ exit 0
 else
-      dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --msgbox "ERROR: can't ping!" 0 0
-      /bin/echo "" # dummy
-      /bin/echo "" # dummy
-      /bin/echo "ERROR: server isn't responsive"
-      /bin/sleep 2
+   dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --msgbox "ERROR: can't ping!" 0 0
+   /bin/echo "" # dummy
+   /bin/echo "" # dummy
+   /bin/echo "ERROR: server isn't responsive"
+   /bin/sleep 2
    /bin/rm -f /tmp/c3d2-networking_ipv4iptest*
 dialog --title "IPv4 is broken" --backtitle "IPv4 is broken" --msgbox "ERROR: sorry your dns & routing is totally broken :(" 5 60
 #/ exit 1
@@ -711,6 +720,33 @@ touch $GETIPV4IF
 killall -q dhclient
 ### // kill dhclient ###
 
+### iwlist // ###
+if [ X"$GETIPV4IFVALUE" = X"wlan0" ]; then
+#/ echo "" # dummy
+#/ else
+#/ /bin/cat /etc/wpa_supplicant/wpa_supplicant.conf | grep 'ssid' | egrep -v "#" | sed 's/"//g' | awk '{print $1,$2,$3,$4,$5}' > /tmp/get_ipv4_address_iwlist1.txt
+#/ nl /tmp/get_ipv4_address_iwlist1.txt | awk '{print $1,$2,$3,$4,$5}' > /tmp/get_ipv4_address_iwlist2.txt
+#/ GETIPV4IWLIST=$(cat /tmp/get_ipv4_address_iwlist2.txt)
+/bin/cat /etc/wpa_supplicant/wpa_supplicant.conf | grep 'ssid' | egrep -v "#" | sed 's/ssid=//g' > /tmp/get_ipv4_address_iwlist1.txt
+nl /tmp/get_ipv4_address_iwlist1.txt > /tmp/get_ipv4_address_iwlist2.txt
+/bin/sed 's/$/ off/' /tmp/get_ipv4_address_iwlist2.txt > /tmp/get_ipv4_address_iwlist3.txt
+/bin/sed '0,/$/s/off/on/' /tmp/get_ipv4_address_iwlist3.txt > /tmp/get_ipv4_address_iwlist4.txt
+GETIPV4IWLIST="/tmp/get_ipv4_address_iwlist4.txt"
+dialog --radiolist "Choose one of your configured wireless network:" 45 45 40 --file $GETIPV4IWLIST 2>/tmp/get_ipv4_address_iwlist5.txt
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_iwlist4.txt /tmp/get_ipv4_address_iwlist5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/get_ipv4_address_iwlist6.txt
+### run // ###
+killall -q dhclient
+ip addr flush dev wlan0
+GETIPV4IWLISTIF=$(cat /tmp/get_ipv4_address_iwlist6.txt)
+iwconfig wlan0 essid "$GETIPV4IWLISTIF"
+ifconfig wlan0 down
+sleep 1
+ifconfig wlan0 up
+sleep 2
+### // run ###
+fi
+### // iwlist ###
+
    #echo "<--- tcpdump preview // --->"
    #echo ""
    #/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 25 | grep --color 0x0800
@@ -740,6 +776,7 @@ sleep 1
 done
 ) | dialog --title "tcpdump - network discovery" --gauge "discover the local network" 20 70 0
 
+echo "" # dummy
 echo "<--- --- --- --- --- --- --- --- --->"
 
 CLASSCTEST=$(grep -F "192.168." $GETIPV4 | wc -l | sed 's/ //g')
@@ -748,24 +785,24 @@ CLASSATEST=$(grep -F "10." $GETIPV4 | wc -l | sed 's/ //g')
 CLASSDN42ATEST=$(grep -F "172.22." $GETIPV4 | wc -l | sed 's/ //g')
 
 if [ $CLASSCTEST = 0 ]; then
-   echo "ERROR: can't find class C network, try again ..."
+   echo "WARNING: can't find class C network, try again ..."
    echo "<--- --- --->"
 ###
    if [ $CLASSBTEST = 0 ]; then
-      echo "ERROR: can't find class B network, try again ..."
+      echo "WARNING: can't find class B network, try again ..."
       echo "<--- --- --->"
 ### ###
       if [ $CLASSATEST = 0 ]; then
-         echo "ERROR: can't find class A network, try again ..."
+         echo "WARNING: can't find class A network, try again ..."
          echo "<--- --- --->"
 ### ### ###
-            echo 'ERROR: no RFC1918 networks found, try dn42 ...'
+            echo 'WARNING: no RFC1918 networks found, try dn42 ...'
             # exit 1
             echo "<--- --- --->"
 ### ### ### DN42a // ### ### ###
                if [ $CLASSDN42ATEST = 0 ]; then
                   echo "ERROR: ... doesn't work ... the tcpdump lookup was probably too short, try again"
-                  echo "<--- --- --->"
+                  echo "<--- --- --- --- --- --- --- --- --->"
                   exit 1
 ### ### ### ### ### ###
                else
@@ -1090,7 +1127,7 @@ cp -f /tmp/get_ipv4_resolv.conf /etc/resolv.conf
 
 # <--- --- --- --- INFO Box // --- --- --- ---//
 
-#clear
+#/ clear
 
 GETIPV4INFO="/tmp/get_ipv4_info.log"
 

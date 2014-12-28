@@ -28,5 +28,5 @@ Usage
 
 Errata
 ======
-* -
+* doesn't support iwconfig spaces
 
