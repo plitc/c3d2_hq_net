@@ -756,6 +756,7 @@ sleep 1
 #/ /sbin/ifconfig wlan0 up
 /bin/echo "" # dummy
 /bin/echo "" # dummy
+/bin/echo "Access Point: try to establish an association with $GETIPV4IWLISTIF"
 /sbin/iw dev wlan0 connect -w "$GETIPV4IWLISTIF"
 /bin/sleep 6
 ### // run ###
@@ -782,9 +783,10 @@ echo "discovering the local network: ($TCPDUMP1 percent)"
 echo "XXX"
 ### run // ###
    echo "" > $GETIPV4
+   #/ ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | egrep "0x0800|0x0806") >> $GETIPV4 2>&1) &
    ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | egrep "0x0800|0x0806") 2>&1 >> $GETIPV4) &
-   #/sleep 1
-   #/( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 2 | grep "0x0806" | awk '{print $12}') >> $GETIPV4 2>&1) &&
+   #/ sleep 1
+   #/ ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 2 | grep "0x0806" | awk '{print $12}') >> $GETIPV4 2>&1) &&
 ### // run ###
 TCPDUMP1=`expr $TCPDUMP1 + 5`
 sleep 1
