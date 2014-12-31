@@ -98,6 +98,7 @@ case $response1 in
       /bin/echo "" # dummy
       /etc/init.d/network-manager stop
       update-rc.d network-manager remove
+      pkill nm-applet
       /etc/init.d/networking stop
       /bin/echo "" # dummy
       systemctl disable NetworkManager
@@ -720,7 +721,7 @@ touch $GETIPV4IF
 killall -q dhclient
 ### // kill dhclient ###
 
-### iwlist // ###
+### iw list // ###
 if [ X"$GETIPV4IFVALUE" = X"wlan0" ]; then
 #/ echo "" # dummy
 #/ else
@@ -735,17 +736,31 @@ GETIPV4IWLIST="/tmp/get_ipv4_address_iwlist4.txt"
 dialog --radiolist "Choose one of your configured wireless network:" 45 45 40 --file $GETIPV4IWLIST 2>/tmp/get_ipv4_address_iwlist5.txt
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_iwlist4.txt /tmp/get_ipv4_address_iwlist5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/get_ipv4_address_iwlist6.txt
 ### run // ###
+#/ killall -q dhclient
+#/ ip addr flush dev wlan0
+#/ GETIPV4IWLISTIF=$(cat /tmp/get_ipv4_address_iwlist6.txt)
+#/ iwconfig wlan0 essid "$GETIPV4IWLISTIF"
+#/ ifconfig wlan0 down
+#/ sleep 1
+#/ ifconfig wlan0 up
+#/ sleep 2
+#
 killall -q dhclient
-ip addr flush dev wlan0
+killall -q wpa_supplicant
 GETIPV4IWLISTIF=$(cat /tmp/get_ipv4_address_iwlist6.txt)
-iwconfig wlan0 essid "$GETIPV4IWLISTIF"
-ifconfig wlan0 down
+/sbin/ip addr flush dev wlan0
+/usr/sbin/service wpa_supplicant start
+#/ /sbin/ifconfig wlan0 down
+#/ /sbin/ip addr flush dev wlan0
 sleep 1
-ifconfig wlan0 up
-sleep 2
+#/ /sbin/ifconfig wlan0 up
+/bin/echo "" # dummy
+/bin/echo "" # dummy
+/sbin/iw dev wlan0 connect -w "$GETIPV4IWLISTIF"
+/bin/sleep 6
 ### // run ###
 fi
-### // iwlist ###
+### // iw list ###
 
    #echo "<--- tcpdump preview // --->"
    #echo ""
@@ -759,7 +774,7 @@ fi
 
 TCPDUMP1=10
 (
-while test $TCPDUMP1 != 110
+while test $TCPDUMP1 != 105
 do
 echo $TCPDUMP1
 echo "XXX"
@@ -767,11 +782,11 @@ echo "discovering the local network: ($TCPDUMP1 percent)"
 echo "XXX"
 ### run // ###
    echo "" > $GETIPV4
-   ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 4 | egrep "0x0800|0x0806") >> $GETIPV4 2>&1) &
+   ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | egrep "0x0800|0x0806") 2>&1 >> $GETIPV4) &
    #/sleep 1
    #/( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 2 | grep "0x0806" | awk '{print $12}') >> $GETIPV4 2>&1) &&
 ### // run ###
-TCPDUMP1=`expr $TCPDUMP1 + 10`
+TCPDUMP1=`expr $TCPDUMP1 + 5`
 sleep 1
 done
 ) | dialog --title "tcpdump - network discovery" --gauge "discover the local network" 20 70 0
