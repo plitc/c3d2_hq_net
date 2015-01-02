@@ -571,10 +571,14 @@ case $response2 in
 (
 ### stage5 // ###
 rm -rf /tmp/get_ipv4*
+GETIPV4Z="/tmp/get_ipv4_address_z.log"
+touch $GETIPV4Z
 GETIPV4="/tmp/get_ipv4_address.log"
 touch $GETIPV4
 GETIPV4ROUTER="/tmp/get_ipv4_router.log"
 touch $GETIPV4ROUTER
+GETIPV4ROUTER2="/tmp/get_ipv4_router2.log"
+touch $GETIPV4ROUTER2
 GETIPV4ROUTERLIST="/tmp/get_ipv4_router_list.log"
 touch $GETIPV4ROUTERLIST
 GETIPV4ROUTERLISTMENU="/tmp/get_ipv4_router_list_menu.log"
@@ -763,15 +767,18 @@ sleep 1
 fi
 ### // iw list ###
 
-   #echo "<--- tcpdump preview // --->"
-   #echo ""
-   #/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 25 | grep --color 0x0800
-   #echo ""
-   #echo "<--- // tcpdump preview --->"
-   #echo ""
-   #(/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | grep "0x0800" | awk '{print $10}' 2>&1 > $GETIPV4) &&
-   #(/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | grep "0x0806" | awk '{print $12}' 2>&1 >> $GETIPV4) &&
-   #echo ""
+   #/ echo "<--- tcpdump preview // --->"
+   #/ echo ""
+   #/ /usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 25 | grep --color 0x0800
+   #/ echo ""
+   #/ echo "<--- // tcpdump preview --->"
+   #/ echo ""
+   #/ (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | grep "0x0800" | awk '{print $10}' 2>&1 > $GETIPV4) &&
+   #/ (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | grep "0x0806" | awk '{print $12}' 2>&1 >> $GETIPV4) &&
+   #/ echo ""
+
+/bin/echo "" > $GETIPV4
+/bin/echo "" > $GETIPV4Z
 
 TCPDUMP1=10
 (
@@ -782,17 +789,20 @@ echo "XXX"
 echo "discovering the local network: ($TCPDUMP1 percent)"
 echo "XXX"
 ### run // ###
-   echo "" > $GETIPV4
+   #/ /bin/echo "" > $GETIPV4
+   #/ /bin/echo "" > $GETIPV4Z
    #/ ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | egrep "0x0800|0x0806") >> $GETIPV4 2>&1) &
-   ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | egrep "0x0800|0x0806") 2>&1 >> $GETIPV4) &
+( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5) 2>&1 >> $GETIPV4Z) &
    #/ sleep 1
    #/ ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 2 | grep "0x0806" | awk '{print $12}') >> $GETIPV4 2>&1) &&
+   #/ /bin/cat $GETIPV4Z | egrep "0x0800|0x0806" >> $GETIPV4
 ### // run ###
 TCPDUMP1=`expr $TCPDUMP1 + 5`
 sleep 1
 done
 ) | dialog --title "tcpdump - network discovery" --gauge "discover the local network" 20 70 0
 
+/bin/cat $GETIPV4Z | egrep "0x0800|0x0806" > $GETIPV4
 echo "" # dummy
 echo "<--- --- --- --- --- --- --- --- --->"
 
@@ -825,7 +835,7 @@ if [ $CLASSCTEST = 0 ]; then
                else
                   echo 'looks like ... DN42 A network'
 # <--- --- --- --- --- --- --- --- ---//
-   CLASSDN42ANET=$(cat $GETIPV4 | grep "172.22" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
+   CLASSDN42ANET=$(cat $GETIPV4 | grep "172.22" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "172.22" | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
    # /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSDN42ANET
    /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSDN42ANET > $GETIPV4ARPDIG
    CLASSDN42APRE=$(cat $GETIPV4 | grep "172.22" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
@@ -858,6 +868,7 @@ echo ""
 ip addr show $GETIPV4IFVALUE
 echo ""
 echo "Your new IP: $NEWDN42AIP"
+sleep 4
 ### ### ### ### ### ### ### ### ###
 # <// --- --- --- --- --- --- --- --- ---
 #
@@ -867,7 +878,7 @@ echo "Your new IP: $NEWDN42AIP"
       else
          echo 'looks like ... class A network'
 # <--- --- --- --- --- --- --- --- ---//
-   CLASSANET=$(cat $GETIPV4 | grep "10." | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
+   CLASSANET=$(cat $GETIPV4 | grep "10." | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "10." | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
    # /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSANET  
    /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSANET > $GETIPV4ARPDIG
    CLASSAPRE=$(cat $GETIPV4 | grep "10." | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
@@ -900,6 +911,7 @@ echo ""
 ip addr show $GETIPV4IFVALUE
 echo ""
 echo "Your new IP: $NEWAIP"
+sleep 4
 ### ### ### ### ### ### ### ### ###
 # <// --- --- --- --- --- --- --- --- ---
       fi
@@ -907,7 +919,7 @@ echo "Your new IP: $NEWAIP"
    else
       echo 'looks like ... class B network'
 # <--- --- --- --- --- --- --- --- ---//
-   CLASSBNET=$(cat $GETIPV4 | grep "172.16" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
+   CLASSBNET=$(cat $GETIPV4 | grep "172.16" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "172.16" | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
    # /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSBNET
    /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSBNET > $GETIPV4ARPDIG
    CLASSBPRE=$(cat $GETIPV4 | grep "172.16" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
@@ -940,6 +952,7 @@ echo ""
 ip addr show $GETIPV4IFVALUE
 echo ""
 echo "Your new IP: $NEWBIP"
+sleep 4
 ### ### ### ### ### ### ### ### ###
 # <// --- --- --- --- --- --- --- --- ---
    fi
@@ -947,7 +960,7 @@ echo "Your new IP: $NEWBIP"
 else
    echo 'looks like ... class C network'
 # <--- --- --- --- --- --- --- --- ---//
-   CLASSCNET=$(cat $GETIPV4 | grep "192.168" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
+   CLASSCNET=$(cat $GETIPV4 | grep "192.168" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "192.168" | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
    # /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSCNET
    /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSCNET > $GETIPV4ARPDIG
    CLASSCPRE=$(cat $GETIPV4 | grep "192.168" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
@@ -980,6 +993,7 @@ echo ""
 ip addr show $GETIPV4IFVALUE
 echo ""
 echo "Your new IP: $NEWCIP"
+sleep 4
 ### ### ### ### ### ### ### ### ###
 # <// --- --- --- --- --- --- --- --- ---
 fi
@@ -990,30 +1004,37 @@ fi
 
 # <--- --- --- --- ROUTER // --- --- --- ---//
 
-   #echo ""
-   #echo "<--- ROUTER tcpdump preview // --->"
-   #echo ""
-   #/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 55 | grep --color "OSPFv2"
-   #echo ""
-   #echo "<--- // ROUTER tcpdump preview --->"
-   echo ""
-   (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 55 | grep --color "OSPFv2" | awk '{print $10}' | sort | uniq 2>&1 > $GETIPV4ROUTER) &&
-   #echo ""
+   #/ echo ""
+   #/ echo "<--- ROUTER tcpdump preview // --->"
+   #/ echo ""
+   #/ /usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 55 | grep --color "OSPFv2"
+   #/ echo ""
+   #/ echo "<--- // ROUTER tcpdump preview --->"
+   #/ echo ""
+   #/ (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 55 | grep --color "OSPFv2" | awk '{print $10}' | sort | uniq 2>&1 > $GETIPV4ROUTER) &&
+   #/ echo ""
+
+/bin/echo "" > $GETIPV4ROUTER
 
 TCPDUMP2=10
 (
-while test $TCPDUMP2 != 110
+while test $TCPDUMP2 != 105
 do
 echo $TCPDUMP2
 echo "XXX"
 echo "discovering local router: ($TCPDUMP2 percent)"   
 echo "XXX"
-#
-TCPDUMP2=`expr $TCPDUMP2 + 10`
+### run // ###
+   #/ /bin/echo "" > $GETIPV4ROUTER
+( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5) 2>&1 >> $GETIPV4ROUTER) &
+   #/ /bin/cat $GETIPV4ROUTER | grep --color "OSPFv2" | awk '{print $10}' | sort | uniq > $GETIPV4ROUTER2
+### // run ###
+TCPDUMP2=`expr $TCPDUMP2 + 5`
 sleep 1
 done
 ) | dialog --title "tcpdump - router discovery" --gauge "discover local router" 20 70 0
-   nl $GETIPV4ROUTER | sed 's/ //g' > $GETIPV4ROUTERLIST
+   /bin/cat $GETIPV4ROUTER | grep --color "OSPFv2" | awk '{print $10}' | sort | uniq > $GETIPV4ROUTER2
+   nl $GETIPV4ROUTER2 | sed 's/ //g' > $GETIPV4ROUTERLIST
    dialog --menu "Choose one default Router:" 10 30 40 `cat $GETIPV4ROUTERLIST` 2>$GETIPV4ROUTERLISTMENU
 ### fix4 // ###
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_router_list.log /tmp/get_ipv4_router_list_menu.log > /tmp/get_ipv4_router_list_menu_choosed.log
