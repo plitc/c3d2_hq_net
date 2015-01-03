@@ -1232,13 +1232,36 @@ esac
 #
 ### // stage1 ###
 ;;
-'storage')
+'hq-storage')
 ### stage1 // ###
 #
 case $DEBIAN in
 Debian)
 ### stage2 // ###
+#
+### stage3 // ###
+if [ "$MYNAME" = "root" ]; then
+#/ echo "" # dummy
+   echo "<--- --- --->"
+else
+   echo "<--- --- --->"
+   echo ""
+   echo "ERROR: You must be root to run this script"
+   exit 1
+fi
+if [ "$DEBVERSION" = "8" ]; then
+   echo "" # dummy
+else
+   echo "<--- --- --->"
+   echo ""
+   echo "ERROR: You need Debian 8 (Jessie) Version"
+   exit 1
+fi
 
+
+
+### // stage3 ###
+#
 ### // stage2 ###
    ;;
 *)
@@ -1261,7 +1284,23 @@ Debian)
 BACKUPDATE=$(date +%Y-%m-%d-%H%M%S)
 #
 ### stage3 // ###
-#
+if [ "$MYNAME" = "root" ]; then
+#/ echo "" # dummy
+   echo "<--- --- --->"
+else
+   echo "<--- --- --->"
+   echo ""
+   echo "ERROR: You must be root to run this script"
+   exit 1
+fi
+if [ "$DEBVERSION" = "8" ]; then
+   echo "" # dummy
+else
+   echo "<--- --- --->"
+   echo ""
+   echo "ERROR: You need Debian 8 (Jessie) Version"
+   exit 1
+fi
 ### backup // ###
 cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE
 cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE
@@ -1283,7 +1322,7 @@ esac
 ### // stage1 ###
 ;;
 *)
-echo "usage: $0 { network | storage | config-backup }"
+echo "usage: $0 { network | hq-storage | config-backup }"
 ;;
 esac
 exit 0

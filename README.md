@@ -14,7 +14,7 @@ Dependencies
    * tcpdump
    * vlan
 
-* Linux (Debian) - storage support
+* Linux (Debian) - hq-storage support
    * ...
 
 Features
@@ -27,7 +27,7 @@ Platform
 
 Usage
 =====
-    # usage: ./c3d2-networking.sh { network | storage | config-backup }
+    # usage: ./c3d2-networking.sh { network | hq-storage | config-backup }
 
 Errata
 ======
