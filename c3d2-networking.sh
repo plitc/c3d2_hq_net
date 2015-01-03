@@ -1350,7 +1350,29 @@ STORAGESMBSRVSTATUS=$(mount | grep "rpool" | wc -l)
 if [ X"$STORAGESMBSRVSTATUS" = X"1" ]; then
    #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
-   exit 1
+   sleep 2
+   #/ exit 1
+###
+dialog --title "HQ Storage Server - umount" --backtitle "HQ Storage Server - umount" --yesno "Do you want umount the current storage? (press ESC to skip)" 5 66
+storagesmb2=$?
+case $storagesmb2 in
+   0)
+      umount /c3d2-storage
+;;
+   1)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      #/ /bin/echo "ERROR:"
+      exit 0
+;;
+   255)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "[ESC] key pressed."
+      exit 0
+;;
+esac
+###
 else
    mount -t cifs //$STORAGESMBSRVIFIP.10/rpool /c3d2-storage -o user=k-ot
    echo "" # dummy
