@@ -201,8 +201,9 @@ if [ -z $PING ]; then
    echo "<--- --- --->"
    echo "need ping (iputils-ping)"
    echo "<--- --- --->"
+   apt-get update
    apt-get install -y iputils-ping
-   cd -
+#/ cd -
    echo "<--- --- --->"
 #/ else
 #/ echo "" # dummy
@@ -211,8 +212,9 @@ if [ -z $ARPING ]; then
    echo "<--- --- --->"
    echo "need arping"
    echo "<--- --- --->"
+   apt-get update
    apt-get install -y arping
-   cd -
+#/ cd -
    echo "<--- --- --->"
 #/ else
 #/ echo "" # dummy
@@ -221,8 +223,9 @@ if [ -z $ARPSCAN ]; then
    echo "<--- --- --->"
    echo "need arp-scan"
    echo "<--- --- --->"
+   apt-get update
    apt-get install -y arp-scan
-   cd -
+#/ cd -
    echo "<--- --- --->"
 #/ else
 #/ echo "" # dummy
@@ -231,8 +234,9 @@ if [ -z $DIALOG ]; then
    echo "<--- --- --->"
    echo "need dialog"
    echo "<--- --- --->"
+   apt-get update
    apt-get install -y dialog
-   cd -
+#/ cd -
    echo "<--- --- --->"
 #/ else
 #/ echo "" # dummy
@@ -251,8 +255,9 @@ if [ -z $IFCONFIG ]; then
     echo "<--- --- --->"
     echo "need ifconfig"
     echo "<--- --- --->"
+    apt-get update
     apt-get install -y ifconfig
-    cd -
+#/  cd -
     echo "<--- --- --->"
 #/ else
 #/ echo "" # dummy
@@ -261,8 +266,9 @@ if [ -z $TCPDUMP ]; then
     echo "<--- --- --->"
     echo "need tcpdump"
     echo "<--- --- --->"
+    apt-get update
     apt-get install -y tcpdump
-    cd -
+#/  cd -
     echo "<--- --- --->"
 #/ else
 #/ echo "" # dummy
@@ -273,8 +279,9 @@ if [ -z $VLAN ]; then
     echo "<--- --- --->"
     echo "need vlan"
     echo "<--- --- --->"
+    apt-get update
     apt-get install -y vlan
-    cd -
+#/  cd -
     echo "<--- --- --->"
 #/ else
 #/ echo "" # dummy
@@ -1257,9 +1264,139 @@ else
    echo "ERROR: You need Debian 8 (Jessie) Version"
    exit 1
 fi
-
-
-
+#
+### stage4 // ###
+rm -f /tmp/c3d2-networking_storage*
+dialog --title "HQ Storage Server" --backtitle "HQ Storage Server" --radiolist "Choose one of your favorite Protocol:" 15 75 12 \
+   1 "smb        (Server Message Block)" on\
+   2 "nfs        (Network File System)" off\
+   3 "webdav     (Web-based Distributed Authoring and Versioning)" off\
+    2>/tmp/c3d2-networking_storage_1.txt
+storage1=$?
+case $storage1 in
+   0)
+      /bin/echo "" # dummy
+cat /tmp/c3d2-networking_storage_1.txt | cut -c1 > /tmp/c3d2-networking_storage_2.txt
+STORAGEPROTO=$(cat /tmp/c3d2-networking_storage_2.txt)
+#
+### // samba //
+if [ X"$STORAGEPROTO" = X"1" ]; then
+   #/ /bin/echo "" # dummy
+STORAGESMB=$(dpkg -l | grep cifs-utils | awk '{print $2}')
+if [ -z $STORAGESMB ]; then
+   echo "<--- --- --->"
+   echo "need cifs-utils (but disable samba daemon)"
+   echo "<--- --- --->"
+   sleep 2
+   apt-get update
+   sleep 2
+   apt-get install -y cifs-utils
+   sleep 2
+   #/ apt-get remove -y samba
+   systemctl stop smbd
+   systemctl stop nmbd
+   systemctl disable smbd
+   systemctl disable nmbd
+   #/ cd -
+   echo "<--- --- --->"
+   #/ else
+   #/ echo "" # dummy
+fi
+ifconfig | grep 'Link' | awk '{print $1}' | egrep -v "lo" > /tmp/c3d2-networking_storage_if_1.txt
+nl /tmp/c3d2-networking_storage_if_1.txt > /tmp/c3d2-networking_storage_if_2.txt
+/bin/sed 's/$/ off/' /tmp/c3d2-networking_storage_if_2.txt > /tmp/c3d2-networking_storage_if_3.txt
+/bin/sed '0,/$/s/off/on/' /tmp/c3d2-networking_storage_if_3.txt > /tmp/c3d2-networking_storage_if_4.txt
+STORAGESMBSRVIF="/tmp/c3d2-networking_storage_if_4.txt"
+dialog --title "HQ Storage Server mount Interface" --backtitle "HQ Storage Server mount Interface" --radiolist "Choose one of your active interface for mounting the storage:" 15 65 40 --file $STORAGESMBSRVIF 2>/tmp/c3d2-networking_storage_if_5.txt
+storagesmb1=$?
+case $storagesmb1 in
+   0)
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_storage_if_4.txt /tmp/c3d2-networking_storage_if_5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/c3d2-networking_storage_if_6.txt
+STORAGESMBSRVIFCHOOSE=$(cat /tmp/c3d2-networking_storage_if_6.txt)
+ip addr show $STORAGESMBSRVIFCHOOSE | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_smb_ip1.txt
+STORAGESMBSRVIFIP=$(cat /tmp/c3d2-networking_storage_smb_ip1.txt)
+if [ -z $STORAGESMBSRVIFIP ]; then
+   echo "" # dummy
+   echo "" # dummy
+   echo "ERROR: can't catch the interface ipv4 address"
+   exit 1
+fi
+#
+   echo "" # dummy
+   echo "" # dummy
+   echo "<--- --- --->"
+   echo "set static ipv4 route to the storage server"
+   echo "<--- --- --->"
+   route del -host $STORAGESMBSRVIFIP.10 > /dev/null 2>&1
+   route add -host $STORAGESMBSRVIFIP.10 dev $STORAGESMBSRVIFCHOOSE
+   sleep 2
+#
+#/ STORAGESMBSRV=$STORAGESMBSRVIFIP.10
+STORAGESMBSRVPORT=445
+STORAGESMBSRVTIMEOUT=1
+#
+if nc -w $STORAGESMBSRVTIMEOUT -t $STORAGESMBSRVIFIP.10 $STORAGESMBSRVPORT; then
+   #/ echo "" # dummy
+   echo "" # dummy
+   echo "INFO: I was able to connect to $STORAGESMBSRVIFIP.10:${STORAGESMBSRVPORT}"
+   sleep 2
+   echo "" # dummy
+   echo "<--- --- --->"
+   echo "try to mount the storage"
+   echo "<--- --- --->"
+   echo "" # dummy
+   mkdir -p /c3d2-storage
+   mount -t cifs //$STORAGESMBSRVIFIP.10/rpool /c3d2-storage -o user=k-ot
+else
+   echo "" # dummy
+   echo "" # dummy
+   echo "ERROR: Connection to $STORAGESMBSRVIFIP.10:${STORAGESMBSRVPORT} failed"
+   exit 1
+fi
+#
+;;
+   1)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      #/ /bin/echo "ERROR:"
+      exit 0
+;;
+   255)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "[ESC] key pressed."
+      exit 0
+;;
+esac
+fi
+#
+### // nfs //
+if [ X"$STORAGEPROTO" = X"2" ]; then
+      /bin/echo "" # dummy
+fi
+#
+### // webdav //
+if [ X"$STORAGEPROTO" = X"3" ]; then
+      /bin/echo "" # dummy
+fi
+#
+;;
+   1)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      #/ /bin/echo "ERROR:"
+      exit 0
+;;
+   255)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "[ESC] key pressed."
+      exit 0
+;;
+esac
+#
+### // stage4 ###
+#
 ### // stage3 ###
 #
 ### // stage2 ###

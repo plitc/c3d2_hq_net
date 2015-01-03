@@ -15,7 +15,7 @@ Dependencies
    * vlan
 
 * Linux (Debian) - hq-storage support
-   * ...
+   * cifs-utils
 
 Features
 ========
