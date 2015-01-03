@@ -202,7 +202,7 @@ if [ -z $PING ]; then
    echo "need ping (iputils-ping)"
    echo "<--- --- --->"
    apt-get update
-   apt-get install -y iputils-ping
+   apt-get install iputils-ping
 #/ cd -
    echo "<--- --- --->"
 #/ else
@@ -213,7 +213,7 @@ if [ -z $ARPING ]; then
    echo "need arping"
    echo "<--- --- --->"
    apt-get update
-   apt-get install -y arping
+   apt-get install arping
 #/ cd -
    echo "<--- --- --->"
 #/ else
@@ -224,7 +224,7 @@ if [ -z $ARPSCAN ]; then
    echo "need arp-scan"
    echo "<--- --- --->"
    apt-get update
-   apt-get install -y arp-scan
+   apt-get install arp-scan
 #/ cd -
    echo "<--- --- --->"
 #/ else
@@ -235,7 +235,7 @@ if [ -z $DIALOG ]; then
    echo "need dialog"
    echo "<--- --- --->"
    apt-get update
-   apt-get install -y dialog
+   apt-get install dialog
 #/ cd -
    echo "<--- --- --->"
 #/ else
@@ -256,7 +256,7 @@ if [ -z $IFCONFIG ]; then
     echo "need ifconfig"
     echo "<--- --- --->"
     apt-get update
-    apt-get install -y ifconfig
+    apt-get install ifconfig
 #/  cd -
     echo "<--- --- --->"
 #/ else
@@ -267,7 +267,7 @@ if [ -z $TCPDUMP ]; then
     echo "need tcpdump"
     echo "<--- --- --->"
     apt-get update
-    apt-get install -y tcpdump
+    apt-get install tcpdump
 #/  cd -
     echo "<--- --- --->"
 #/ else
@@ -280,7 +280,7 @@ if [ -z $VLAN ]; then
     echo "need vlan"
     echo "<--- --- --->"
     apt-get update
-    apt-get install -y vlan
+    apt-get install vlan
 #/  cd -
     echo "<--- --- --->"
 #/ else
@@ -1290,7 +1290,7 @@ if [ -z $STORAGESMB ]; then
    sleep 2
    apt-get update
    sleep 2
-   apt-get install -y cifs-utils
+   apt-get install cifs-utils
    sleep 2
    #/ apt-get remove -y samba
    systemctl stop smbd
