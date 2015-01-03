@@ -37,7 +37,9 @@ DEBIAN=$(uname -a | awk '{print $6}')
 DEBVERSION=$(cat /etc/debian_version | cut -c1)
 MYNAME=$(whoami)
 ### // stage0 ###
-#
+
+case "$1" in
+'network')
 ### stage1 // ###
 case $DEBIAN in
 Debian)
@@ -52,7 +54,7 @@ TCPDUMP=$(/usr/bin/which tcpdump)
 VLAN=$(/usr/bin/dpkg -l | grep vlan | awk '{print $2}')
 #/ NETMANAGER=$(/etc/init.d/network-manager status | grep enabled | awk '{print $4}' | sed 's/)//g')
 C3D2CONFIG=$(cat /etc/network/interfaces | grep "c3d2-network-config-start" | awk '{print $4}')
-BACKUPDATE=$(date +%Y-%m-%d-%H%M%S)
+#/ BACKUPDATE=$(date +%Y-%m-%d-%H%M%S)
 ### // stage2 ###
 #
 ### stage3 // ###
@@ -76,10 +78,10 @@ fi
 if [ X"$C3D2CONFIG" = X"c3d2-network-config-start" ]; then
    echo "" # dummy
 else
-### backup // ###
-cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE
-cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE
-### // backup ###
+#/ ### backup // ###
+#/ cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE
+#/ cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE
+#/ ### // backup ###
 #/ if [ X"$NETMANAGER" = X"enabled" ]; then
 #/ echo "Well, your current Setup use an Network-Manager, we don't like it"
 #/ echo "" # dummy
@@ -1227,10 +1229,64 @@ fi
    exit 1
    ;;
 esac
-
 #
 ### // stage1 ###
+;;
+'storage')
+### stage1 // ###
+#
+case $DEBIAN in
+Debian)
+### stage2 // ###
 
+### // stage2 ###
+   ;;
+*)
+   # error 1
+   echo "<--- --- --->"
+   echo ""
+   echo "ERROR: Plattform = unknown"
+   exit 1
+   ;;
+esac
+#
+### // stage1 ###
+;;
+'config-backup')
+### stage1 // ###
+#
+case $DEBIAN in
+Debian)
+### stage2 // ###
+BACKUPDATE=$(date +%Y-%m-%d-%H%M%S)
+#
+### stage3 // ###
+#
+### backup // ###
+cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE
+cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE
+### // backup ###
+#
+### // stage3 ###
+#
+### // stage2 ###
+   ;;
+*)
+   # error 1
+   echo "<--- --- --->"
+   echo ""
+   echo "ERROR: Plattform = unknown"
+   exit 1
+   ;;
+esac
+#
+### // stage1 ###
+;;
+*)
+echo "usage: $0 { network | storage | config-backup }"
+;;
+esac
+exit 0
 
 ### ### ### PLITC ### ### ###
 # EOF
