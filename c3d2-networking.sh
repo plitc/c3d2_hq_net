@@ -1346,7 +1346,16 @@ if nc -w $STORAGESMBSRVTIMEOUT -t $STORAGESMBSRVIFIP.10 $STORAGESMBSRVPORT; then
    echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
+STORAGESMBSRVSTATUS=$(mount | grep "rpool" | wc -l)
+if [ X"$STORAGESMBSRVSTATUS" = X"1" ]; then
+   #/ echo "" # dummy
+   echo "ERROR: storage is already mounted"
+   exit 1
+else
    mount -t cifs //$STORAGESMBSRVIFIP.10/rpool /c3d2-storage -o user=k-ot
+   echo "" # dummy
+   df -h
+fi
 else
    echo "" # dummy
    echo "" # dummy
