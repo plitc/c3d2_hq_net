@@ -1,11 +1,11 @@
 
 Background
 ==========
-set ipv4/ipv6 network configs
+set (c3d2.de hq) ipv4/ipv6 network configs
 
 Dependencies
 ============
-* Linux (Debian)
+* Linux (Debian) - network support
    * iputils-ping
    * arping
    * arp-scan
@@ -13,6 +13,9 @@ Dependencies
    * ifconfig
    * tcpdump
    * vlan
+
+* Linux (Debian) - storage support
+   * ...
 
 Features
 ========
@@ -24,7 +27,7 @@ Platform
 
 Usage
 =====
-    # ./c3d2-networking.sh
+    # usage: ./c3d2-networking.sh { network | storage | config-backup }
 
 Errata
 ======
