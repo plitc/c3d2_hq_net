@@ -1322,28 +1322,28 @@ if [ -z $STORAGESMBSRVIFIP ]; then
    exit 1
 fi
 #
-   echo "" # dummy
-   echo "" # dummy
-   echo "<--- --- --->"
-   echo "set static ipv4 route to the storage server"
-   echo "<--- --- --->"
-   route del -host $STORAGESMBSRVIFIP.10 > /dev/null 2>&1
-   route add -host $STORAGESMBSRVIFIP.10 dev $STORAGESMBSRVIFCHOOSE
-   sleep 2
+   #/ echo "" # dummy
+   #/ echo "" # dummy
+   #/ echo "<--- --- --->"
+   #/ echo "set static ipv4 route to the storage server"
+   #/ echo "<--- --- --->"
+   #/ route del -host $STORAGESMBSRVIFIP.10 > /dev/null 2>&1
+   #/ route add -host $STORAGESMBSRVIFIP.10 dev $STORAGESMBSRVIFCHOOSE
+   #/ sleep 2
 #
 #/ STORAGESMBSRV=$STORAGESMBSRVIFIP.10
 STORAGESMBSRVPORT=445
 STORAGESMBSRVTIMEOUT=1
 #
 if nc -w $STORAGESMBSRVTIMEOUT -t $STORAGESMBSRVIFIP.10 $STORAGESMBSRVPORT; then
-   #/ echo "" # dummy
+   echo "" # dummy
    echo "" # dummy
    echo "INFO: I was able to connect to $STORAGESMBSRVIFIP.10:${STORAGESMBSRVPORT}"
    sleep 2
-   echo "" # dummy
-   echo "<--- --- --->"
-   echo "try to mount the storage"
-   echo "<--- --- --->"
+   #/ echo "" # dummy
+   #/ echo "<--- --- --->"
+   #/ echo "try to mount the storage"
+   #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
 STORAGESMBSRVSTATUS=$(mount | grep "rpool" | wc -l)
