@@ -1595,6 +1595,8 @@ dialog --title "HQ Storage Server - umount" --backtitle "HQ Storage Server - umo
 storageweb2=$?
 case $storageweb2 in
    0)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
       umount /c3d2-storage
 ;;
    1)
