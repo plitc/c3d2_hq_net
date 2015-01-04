@@ -19,6 +19,7 @@ Dependencies
    * nfs-common
    * portmap
    * davfs2
+   * sshfs
 
 Features
 ========
