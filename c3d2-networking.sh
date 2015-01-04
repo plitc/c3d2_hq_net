@@ -1271,6 +1271,7 @@ dialog --title "HQ Storage Server" --backtitle "HQ Storage Server" --radiolist "
    1 "smb        (Server Message Block)" on\
    2 "nfs        (Network File System)" off\
    3 "webdav     (Web-based Distributed Authoring and Versioning)" off\
+   4 "sshfs      (Secure Shell Filesystem)" off\
     2>/tmp/c3d2-networking_storage_1.txt
 storage1=$?
 case $storage1 in
@@ -1622,6 +1623,129 @@ else
    echo "" # dummy
    echo "" # dummy
    echo "ERROR: Connection to $STORAGEWEBSRVIFIP.10:${STORAGEWEBSRVPORT} failed"
+   exit 1
+fi
+#
+;;
+   1)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      #/ /bin/echo "ERROR:"
+      exit 0
+;;
+   255)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "[ESC] key pressed."
+      exit 0
+;;
+esac
+fi
+rm -f /tmp/c3d2-networking_storage*
+#
+### // sshfs //
+if [ X"$STORAGEPROTO" = X"4" ]; then
+      /bin/echo "" # dummy
+STORAGESSHFS=$(dpkg -l | grep sshfs | awk '{print $2}')
+if [ -z $STORAGESSHFS ]; then
+   echo "<--- --- --->"
+   echo "need sshfs"
+   echo "<--- --- --->"
+   sleep 2
+   apt-get update
+   sleep 2
+   apt-get install sshfs
+   sleep 2
+   #
+   #/ cd -
+   echo "<--- --- --->"
+   #/ else
+   #/ echo "" # dummy
+fi
+ifconfig | grep 'Link' | awk '{print $1}' | egrep -v "lo" > /tmp/c3d2-networking_storage_if_1.txt
+nl /tmp/c3d2-networking_storage_if_1.txt > /tmp/c3d2-networking_storage_if_2.txt
+/bin/sed 's/$/ off/' /tmp/c3d2-networking_storage_if_2.txt > /tmp/c3d2-networking_storage_if_3.txt
+/bin/sed '0,/$/s/off/on/' /tmp/c3d2-networking_storage_if_3.txt > /tmp/c3d2-networking_storage_if_4.txt
+STORAGESSHFSSRVIF="/tmp/c3d2-networking_storage_if_4.txt"
+dialog --title "HQ Storage Server mount Interface" --backtitle "HQ Storage Server mount Interface" --radiolist "Choose one of your active interface for mounting the storage:" 15 65 40 --file $STORAGESSHFSSRVIF 2>/tmp/c3d2-networking_storage_if_5.txt
+storagesshfs1=$?
+case $storagesshfs1 in
+   0)
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_storage_if_4.txt /tmp/c3d2-networking_storage_if_5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/c3d2-networking_storage_if_6.txt
+STORAGESSHFSSRVIFCHOOSE=$(cat /tmp/c3d2-networking_storage_if_6.txt)
+ip addr show $STORAGESSHFSSRVIFCHOOSE | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_sshfs_ip1.txt
+STORAGESSHFSSRVIFIP=$(cat /tmp/c3d2-networking_storage_sshfs_ip1.txt)
+if [ -z $STORAGESSHFSSRVIFIP ]; then
+   echo "" # dummy
+   echo "" # dummy
+   echo "ERROR: can't catch the interface ipv4 address"
+   exit 1
+fi
+#
+   #/ echo "" # dummy
+   #/ echo "" # dummy
+   #/ echo "<--- --- --->"
+   #/ echo "set static ipv4 route to the storage server"
+   #/ echo "<--- --- --->"
+   #/ route del -host $STORAGESSHFSSRVIFIP.10 > /dev/null 2>&1
+   #/ route add -host $STORAGESSHFSSRVIFIP.10 dev $STORAGESSHFSSRVIFCHOOSE
+   #/ sleep 2
+#
+#/ STORAGESSHFSSRV=$STORAGESSHFSSRVIFIP.10
+STORAGESSHFSSRVPORT=22
+STORAGESSHFSSRVTIMEOUT=1
+#
+   echo "" # dummy
+   echo "" # dummy
+if nc -w $STORAGESSHFSSRVTIMEOUT -t $STORAGESSHFSSRVIFIP.10 $STORAGESSHFSSRVPORT; then
+   echo "" # dummy
+   echo "" # dummy
+   echo "INFO: I was able to connect to $STORAGESSHFSSRVIFIP.10:${STORAGESSHFSSRVPORT}"
+   sleep 2
+   #/ echo "" # dummy
+   #/ echo "<--- --- --->"
+   #/ echo "try to mount the storage"
+   #/ echo "<--- --- --->"
+   echo "" # dummy
+   mkdir -p /c3d2-storage
+STORAGESSHFSSRVSTATUS=$(mount | grep "rpool" | wc -l)
+if [ X"$STORAGESSHFSSRVSTATUS" = X"1" ]; then
+   #/ echo "" # dummy
+   echo "ERROR: storage is already mounted"
+   sleep 2
+   #/ exit 1
+###
+dialog --title "HQ Storage Server - umount" --backtitle "HQ Storage Server - umount" --yesno "Do you want umount the current storage? (press ESC to skip)" 5 66
+storagesshfs2=$?
+case $storagesshfs2 in
+   0)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      umount /c3d2-storage
+;;
+   1)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      #/ /bin/echo "ERROR:"
+      exit 0
+;;
+   255)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "[ESC] key pressed."
+      exit 0
+;;
+esac
+###
+else
+   sshfs root@$STORAGESSHFSSRVIFIP.10:/mnt/zroot/storage/rpool /c3d2-storage
+   echo "" # dummy
+   df -h
+fi
+else
+   echo "" # dummy
+   echo "" # dummy
+   echo "ERROR: Connection to $STORAGESSHFSSRVIFIP.10:${STORAGESSHFSSRVPORT} failed"
    exit 1
 fi
 #
