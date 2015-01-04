@@ -1524,7 +1524,121 @@ rm -f /tmp/c3d2-networking_storage*
 ### // webdav //
 if [ X"$STORAGEPROTO" = X"3" ]; then
       /bin/echo "" # dummy
+STORAGEWEB=$(dpkg -l | grep davfs2 | awk '{print $2}')
+if [ -z $STORAGEWEB ]; then
+   echo "<--- --- --->"
+   echo "need davfs2"
+   echo "<--- --- --->"
+   sleep 2
+   apt-get update
+   sleep 2
+   apt-get install davfs2
+   sleep 2
+   #
+   #/ cd -
+   echo "<--- --- --->"
+   #/ else
+   #/ echo "" # dummy
 fi
+ifconfig | grep 'Link' | awk '{print $1}' | egrep -v "lo" > /tmp/c3d2-networking_storage_if_1.txt
+nl /tmp/c3d2-networking_storage_if_1.txt > /tmp/c3d2-networking_storage_if_2.txt
+/bin/sed 's/$/ off/' /tmp/c3d2-networking_storage_if_2.txt > /tmp/c3d2-networking_storage_if_3.txt
+/bin/sed '0,/$/s/off/on/' /tmp/c3d2-networking_storage_if_3.txt > /tmp/c3d2-networking_storage_if_4.txt
+STORAGEWEBSRVIF="/tmp/c3d2-networking_storage_if_4.txt"
+dialog --title "HQ Storage Server mount Interface" --backtitle "HQ Storage Server mount Interface" --radiolist "Choose one of your active interface for mounting the storage:" 15 65 40 --file $STORAGEWEBSRVIF 2>/tmp/c3d2-networking_storage_if_5.txt
+storageweb1=$?
+case $storageweb1 in
+   0)
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_storage_if_4.txt /tmp/c3d2-networking_storage_if_5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/c3d2-networking_storage_if_6.txt
+STORAGEWEBSRVIFCHOOSE=$(cat /tmp/c3d2-networking_storage_if_6.txt)
+ip addr show $STORAGEWEBSRVIFCHOOSE | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_web_ip1.txt
+STORAGEWEBSRVIFIP=$(cat /tmp/c3d2-networking_storage_web_ip1.txt)
+if [ -z $STORAGEWEBSRVIFIP ]; then
+   echo "" # dummy
+   echo "" # dummy
+   echo "ERROR: can't catch the interface ipv4 address"
+   exit 1
+fi
+#
+   #/ echo "" # dummy
+   #/ echo "" # dummy
+   #/ echo "<--- --- --->"
+   #/ echo "set static ipv4 route to the storage server"
+   #/ echo "<--- --- --->"
+   #/ route del -host $STORAGEWEBSRVIFIP.10 > /dev/null 2>&1
+   #/ route add -host $STORAGEWEBSRVIFIP.10 dev $STORAGEWEBSRVIFCHOOSE
+   #/ sleep 2
+#
+#/ STORAGEWEBSRV=$STORAGEWEBSRVIFIP.10
+STORAGEWEBSRVPORT=8080
+STORAGEWEBSRVTIMEOUT=1
+#
+if nc -w $STORAGEWEBSRVTIMEOUT -t $STORAGEWEBSRVIFIP.10 $STORAGEWEBSRVPORT; then
+   echo "" # dummy
+   echo "" # dummy
+   echo "INFO: I was able to connect to $STORAGEWEBSRVIFIP.10:${STORAGEWEBSRVPORT}"
+   sleep 2
+   #/ echo "" # dummy
+   #/ echo "<--- --- --->"
+   #/ echo "try to mount the storage"
+   #/ echo "<--- --- --->"
+   echo "" # dummy
+   mkdir -p /c3d2-storage
+STORAGEWEBSRVSTATUS=$(mount | grep "rpool" | wc -l)
+if [ X"$STORAGEWEBSRVSTATUS" = X"1" ]; then
+   #/ echo "" # dummy
+   echo "ERROR: storage is already mounted"
+   sleep 2
+   #/ exit 1
+###
+dialog --title "HQ Storage Server - umount" --backtitle "HQ Storage Server - umount" --yesno "Do you want umount the current storage? (press ESC to skip)" 5 66
+storageweb2=$?
+case $storageweb2 in
+   0)
+      umount /c3d2-storage
+;;
+   1)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      #/ /bin/echo "ERROR:"
+      exit 0
+;;
+   255)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "[ESC] key pressed."
+      exit 0
+;;
+esac
+###
+else
+   mount -t davfs -o username=webdav http://$STORAGEWEBSRVIFIP.10:80/rpool /c3d2-storage
+   echo "" # dummy
+   df -h
+fi
+else
+   echo "" # dummy
+   echo "" # dummy
+   echo "ERROR: Connection to $STORAGEWEBSRVIFIP.10:${STORAGEWEBSRVPORT} failed"
+   exit 1
+fi
+#
+;;
+   1)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      #/ /bin/echo "ERROR:"
+      exit 0
+;;
+   255)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "[ESC] key pressed."
+      exit 0
+;;
+esac
+fi
+rm -f /tmp/c3d2-networking_storage*
 #
 ;;
    1)

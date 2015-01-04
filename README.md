@@ -16,6 +16,9 @@ Dependencies
 
 * Linux (Debian) - hq-storage support
    * cifs-utils
+   * nfs-common
+   * portmap
+   * davfs2
 
 Features
 ========
