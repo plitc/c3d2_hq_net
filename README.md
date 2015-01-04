@@ -21,6 +21,9 @@ Dependencies
    * davfs2
    * sshfs
 
+* Linux (Debian) - hq-printer support
+   * cups
+
 Features
 ========
 * -
@@ -31,7 +34,7 @@ Platform
 
 Usage
 =====
-    # usage: ./c3d2-networking.sh { network | hq-storage | config-backup }
+    # usage: ./c3d2-networking.sh { network | hq-storage | hq-printer | config-backup }
 
 Errata
 ======

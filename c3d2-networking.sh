@@ -1800,6 +1800,50 @@ esac
 #
 ### // stage1 ###
 ;;
+'hq-printer')
+### stage1 // ###
+#
+case $DEBIAN in
+debian)
+### stage2 // ###
+
+
+### stage3 // ###
+if [ "$MYNAME" = "root" ]; then
+#/ echo "" # dummy
+   echo "<--- --- --->"
+else
+   echo "<--- --- --->"
+   echo ""
+   echo "ERROR: You must be root to run this script"
+   exit 1
+fi
+if [ "$DEBVERSION" = "8" ]; then
+   echo "" # dummy
+else
+   echo "<--- --- --->"
+   echo ""
+   echo "ERROR: You need Debian 8 (Jessie) Version"
+   exit 1
+fi
+
+
+#
+### // stage3 ###
+#
+### // stage2 ###
+   ;;
+*)
+   # error 1
+   echo "<--- --- --->"
+   echo ""
+   echo "ERROR: Plattform = unknown"
+   exit 1
+   ;;
+esac
+#
+### // stage1 ###
+;;
 'config-backup')
 ### stage1 // ###
 #
@@ -1847,7 +1891,7 @@ esac
 ### // stage1 ###
 ;;
 *)
-echo "usage: $0 { network | hq-storage | config-backup }"
+echo "usage: $0 { network | hq-storage | hq-printer | config-backup }"
 ;;
 esac
 exit 0
