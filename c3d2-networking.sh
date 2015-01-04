@@ -1612,7 +1612,7 @@ case $storageweb2 in
 esac
 ###
 else
-   mount -t davfs -o username=webdav http://$STORAGEWEBSRVIFIP.10:80/rpool /c3d2-storage
+   mount -t davfs -o username=webdav http://$STORAGEWEBSRVIFIP.10:8080/rpool /c3d2-storage
    echo "" # dummy
    df -h
 fi
