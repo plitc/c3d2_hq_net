@@ -33,8 +33,10 @@
 
 ### stage0 // ###
 DISTRO=$(uname -a)
-DEBIAN=$(uname -a | awk '{print $6}')
-DEBVERSION=$(cat /etc/debian_version | cut -c1)
+#/ DEBIAN=$(uname -a | awk '{print $6}')
+DEBIAN=$(cat /etc/os-release | grep "ID" | egrep -v "VERSION" | sed 's/ID=//g')
+#/ DEBVERSION=$(cat /etc/debian_version | cut -c1)
+DEBVERSION=$(cat /etc/os-release | grep "VERSION_ID" | sed 's/VERSION_ID=//g' | sed 's/"//g')
 MYNAME=$(whoami)
 ### // stage0 ###
 
@@ -42,7 +44,7 @@ case "$1" in
 'network')
 ### stage1 // ###
 case $DEBIAN in
-Debian)
+debian)
 ### stage2 // ###
 PING=$(/usr/bin/which ping)
 ARPING=$(/usr/bin/which arping)
@@ -1243,7 +1245,7 @@ esac
 ### stage1 // ###
 #
 case $DEBIAN in
-Debian)
+debian)
 ### stage2 // ###
 #
 ### stage3 // ###
@@ -1802,7 +1804,7 @@ esac
 ### stage1 // ###
 #
 case $DEBIAN in
-Debian)
+debian)
 ### stage2 // ###
 BACKUPDATE=$(date +%Y-%m-%d-%H%M%S)
 #
