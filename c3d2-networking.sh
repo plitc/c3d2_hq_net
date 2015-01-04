@@ -1400,11 +1400,126 @@ fi
 ;;
 esac
 fi
+rm -f /tmp/c3d2-networking_storage*
 #
 ### // nfs //
 if [ X"$STORAGEPROTO" = X"2" ]; then
       /bin/echo "" # dummy
+STORAGENFS=$(dpkg -l | grep nfs-common | awk '{print $2}')
+if [ -z $STORAGENFS ]; then
+   echo "<--- --- --->"
+   echo "need nfs-common/portmap"
+   echo "<--- --- --->"
+   sleep 2
+   apt-get update
+   sleep 2
+   apt-get install nfs-common portmap
+   sleep 2
+   #
+   #/ cd -
+   echo "<--- --- --->"
+   #/ else
+   #/ echo "" # dummy
 fi
+ifconfig | grep 'Link' | awk '{print $1}' | egrep -v "lo" > /tmp/c3d2-networking_storage_if_1.txt
+nl /tmp/c3d2-networking_storage_if_1.txt > /tmp/c3d2-networking_storage_if_2.txt
+/bin/sed 's/$/ off/' /tmp/c3d2-networking_storage_if_2.txt > /tmp/c3d2-networking_storage_if_3.txt
+/bin/sed '0,/$/s/off/on/' /tmp/c3d2-networking_storage_if_3.txt > /tmp/c3d2-networking_storage_if_4.txt
+STORAGENFSSRVIF="/tmp/c3d2-networking_storage_if_4.txt"
+dialog --title "HQ Storage Server mount Interface" --backtitle "HQ Storage Server mount Interface" --radiolist "Choose one of your active interface for mounting the storage:" 15 65 40 --file $STORAGENFSSRVIF 2>/tmp/c3d2-networking_storage_if_5.txt
+storagenfs1=$?
+case $storagenfs1 in
+   0)
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_storage_if_4.txt /tmp/c3d2-networking_storage_if_5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/c3d2-networking_storage_if_6.txt
+STORAGENFSSRVIFCHOOSE=$(cat /tmp/c3d2-networking_storage_if_6.txt)
+ip addr show $STORAGENFSSRVIFCHOOSE | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_nfs_ip1.txt
+STORAGENFSSRVIFIP=$(cat /tmp/c3d2-networking_storage_nfs_ip1.txt)
+if [ -z $STORAGENFSSRVIFIP ]; then
+   echo "" # dummy
+   echo "" # dummy
+   echo "ERROR: can't catch the interface ipv4 address"
+   exit 1
+fi
+#
+   #/ echo "" # dummy
+   #/ echo "" # dummy
+   #/ echo "<--- --- --->"
+   #/ echo "set static ipv4 route to the storage server"
+   #/ echo "<--- --- --->"
+   #/ route del -host $STORAGENFSSRVIFIP.10 > /dev/null 2>&1
+   #/ route add -host $STORAGENFSSRVIFIP.10 dev $STORAGENFSSRVIFCHOOSE
+   #/ sleep 2
+#
+#/ STORAGENFSSRV=$STORAGENFSSRVIFIP.10
+STORAGENFSSRVPORT=2049
+STORAGENFSSRVTIMEOUT=1
+#
+if nc -w $STORAGENFSSRVTIMEOUT -t $STORAGENFSSRVIFIP.10 $STORAGENFSSRVPORT; then
+   echo "" # dummy
+   echo "" # dummy
+   echo "INFO: I was able to connect to $STORAGENFSSRVIFIP.10:${STORAGENFSSRVPORT}"
+   sleep 2
+   #/ echo "" # dummy
+   #/ echo "<--- --- --->"
+   #/ echo "try to mount the storage"
+   #/ echo "<--- --- --->"
+   echo "" # dummy
+   mkdir -p /c3d2-storage
+STORAGENFSSRVSTATUS=$(mount | grep "rpool" | wc -l)
+if [ X"$STORAGENFSSRVSTATUS" = X"1" ]; then
+   #/ echo "" # dummy
+   echo "ERROR: storage is already mounted"
+   sleep 2
+   #/ exit 1
+###
+dialog --title "HQ Storage Server - umount" --backtitle "HQ Storage Server - umount" --yesno "Do you want umount the current storage? (press ESC to skip)" 5 66
+storagenfs2=$?
+case $storagenfs2 in
+   0)
+      umount /c3d2-storage
+;;
+   1)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      #/ /bin/echo "ERROR:"
+      exit 0
+;;
+   255)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "[ESC] key pressed."
+      exit 0
+;;
+esac
+###
+else
+   mount -t nfs $STORAGENFSSRVIFIP.10:/mnt/zroot/storage/rpool /c3d2-storage -o soft,timeo=15,noatime
+   echo "" # dummy
+   df -h
+fi
+else
+   echo "" # dummy
+   echo "" # dummy
+   echo "ERROR: Connection to $STORAGENFSSRVIFIP.10:${STORAGENFSSRVPORT} failed"
+   exit 1
+fi
+#
+;;
+   1)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      #/ /bin/echo "ERROR:"
+      exit 0
+;;
+   255)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "[ESC] key pressed."
+      exit 0
+;;
+esac
+fi
+rm -f /tmp/c3d2-networking_storage*
 #
 ### // webdav //
 if [ X"$STORAGEPROTO" = X"3" ]; then
