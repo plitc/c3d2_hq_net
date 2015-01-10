@@ -20,6 +20,7 @@ Dependencies
    * portmap
    * davfs2
    * sshfs
+   * curlftpfs
 
 * Linux (Debian) - hq-printer support
    * cups
