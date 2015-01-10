@@ -1274,6 +1274,7 @@ dialog --title "HQ Storage Server" --backtitle "HQ Storage Server" --radiolist "
    2 "nfs        (Network File System)" off\
    3 "webdav     (Web-based Distributed Authoring and Versioning)" off\
    4 "sshfs      (Secure Shell Filesystem)" off\
+   5 "ftps       (Secure File Transfer Protocol)" off\
     2>/tmp/c3d2-networking_storage_1.txt
 storage1=$?
 case $storage1 in
@@ -1768,6 +1769,153 @@ esac
 fi
 rm -f /tmp/c3d2-networking_storage*
 #
+### // ftp //
+if [ X"$STORAGEPROTO" = X"5" ]; then
+      /bin/echo "" # dummy
+STORAGEFTP=$(dpkg -l | grep curlftpfs | awk '{print $2}')
+if [ -z $STORAGEFTP ]; then
+   echo "<--- --- --->"
+   echo "need curlftpfs"
+   echo "<--- --- --->"
+   sleep 2
+   apt-get update
+   sleep 2
+   apt-get install curlftpfs
+   sleep 2
+   #
+   #/ cd -
+   echo "<--- --- --->"
+   #/ else
+   #/ echo "" # dummy
+fi
+ifconfig | grep 'Link' | awk '{print $1}' | egrep -v "lo" > /tmp/c3d2-networking_storage_if_1.txt
+nl /tmp/c3d2-networking_storage_if_1.txt > /tmp/c3d2-networking_storage_if_2.txt
+/bin/sed 's/$/ off/' /tmp/c3d2-networking_storage_if_2.txt > /tmp/c3d2-networking_storage_if_3.txt
+/bin/sed '0,/$/s/off/on/' /tmp/c3d2-networking_storage_if_3.txt > /tmp/c3d2-networking_storage_if_4.txt
+STORAGEFTPSRVIF="/tmp/c3d2-networking_storage_if_4.txt"
+dialog --title "HQ Storage Server mount Interface" --backtitle "HQ Storage Server mount Interface" --radiolist "Choose one of your active interface for mounting the storage:" 15 65 40 --file $STORAGEFTPSRVIF 2>/tmp/c3d2-networking_storage_if_5.txt
+storageftp1=$?
+case $storageftp1 in
+   0)
+awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_storage_if_4.txt /tmp/c3d2-networking_storage_if_5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/c3d2-networking_storage_if_6.txt
+STORAGEFTPSRVIFCHOOSE=$(cat /tmp/c3d2-networking_storage_if_6.txt)
+ip addr show $STORAGEFTPSRVIFCHOOSE | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_ftp_ip1.txt
+STORAGEFTPSRVIFIP=$(cat /tmp/c3d2-networking_storage_ftp_ip1.txt)
+if [ -z $STORAGEFTPSRVIFIP ]; then
+   echo "" # dummy
+   echo "" # dummy
+   echo "ERROR: can't catch the interface ipv4 address"
+   exit 1
+fi
+#
+   #/ echo "" # dummy
+   #/ echo "" # dummy
+   #/ echo "<--- --- --->"
+   #/ echo "set static ipv4 route to the storage server"
+   #/ echo "<--- --- --->"
+   #/ route del -host $STORAGEFTPSRVIFIP.10 > /dev/null 2>&1
+   #/ route add -host $STORAGEFTPSRVIFIP.10 dev $STORAGEFTPSRVIFCHOOSE
+   #/ sleep 2
+#
+#/ STORAGEFTPSRV=$STORAGEFTPSRVIFIP.10
+STORAGEFTPSRVPORT=21
+STORAGEFTPSRVTIMEOUT=1
+#
+   echo "" # dummy
+   echo "" # dummy
+if nc -u -w $STORAGEFTPSRVTIMEOUT -t $STORAGEFTPSRVIFIP.10 $STORAGEFTPSRVPORT; then
+   echo "" # dummy
+   echo "" # dummy
+   echo "INFO: I was able to connect to $STORAGEFTPSRVIFIP.10:${STORAGEFTPSRVPORT}"
+   sleep 2
+   #/ echo "" # dummy
+   #/ echo "<--- --- --->"
+   #/ echo "try to mount the storage"
+   #/ echo "<--- --- --->"
+   echo "" # dummy
+   mkdir -p /c3d2-storage
+STORAGEFTPSRVSTATUS=$(mount | grep "curlftpfs" | wc -l)
+if [ X"$STORAGEFTPSRVSTATUS" = X"1" ]; then
+   #/ echo "" # dummy
+   echo "ERROR: storage is already mounted"
+   sleep 2
+   #/ exit 1
+###
+dialog --title "HQ Storage Server - umount" --backtitle "HQ Storage Server - umount" --yesno "Do you want umount the current storage? (press ESC to skip)" 5 66
+storageftp2=$?
+case $storageftp2 in
+   0)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      #/ umount /c3d2-storage
+      fusermount -u /c3d2-storage #/; fusermount -u /c3d2-storage
+;;
+   1)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      #/ /bin/echo "ERROR:"
+      exit 0
+;;
+   255)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "[ESC] key pressed."
+      exit 0
+;;
+esac
+###
+else
+rm -f /root/.netrc
+touch /root/.netrc
+chmod 0600 /root/.netrc
+STORAGEFTPAUTHFILE=$(cat /root/.netrc)
+ if [ -z $STORAGEFTPAUTHFILE ]; then
+/bin/cat <<STORAGEFTPLOGIN > /root/.netrc
+### ### ### c3d2-hq-storage // ### ### ###
+#
+machine $STORAGEFTPSRVIFIP.10
+login k-ot
+password
+#
+### ### ### // c3d2-hq-storage ### ### ###
+# EOF
+STORAGEFTPLOGIN
+ fi
+### password // ###
+dialog --title "HQ Storage Server - ftps password" --backtitle "HQ Storage Server - ftps password" --clear --insecure --passwordbox "Enter your password" 10 60 2>> /root/.netrc
+sed -i '/password/d' /root/.netrc
+sed -i '$s/^/password /' /root/.netrc
+### // password ###
+   echo "" # dummy
+   echo "" # dummy
+   curlftpfs -o ssl,no_verify_hostname,no_verify_peer $STORAGEFTPSRVIFIP.10 /c3d2-storage
+   echo "" # dummy
+   df -h
+fi
+else
+   echo "" # dummy
+   echo "" # dummy
+   echo "ERROR: Connection to $STORAGEFTPSRVIFIP.10:${STORAGEFTPSRVPORT} failed"
+   exit 1
+fi
+#
+;;
+   1)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      #/ /bin/echo "ERROR:"
+      exit 0
+;;
+   255)
+      /bin/echo "" # dummy
+      /bin/echo "" # dummy
+      /bin/echo "[ESC] key pressed."
+      exit 0
+;;
+esac
+fi
+rm -f /tmp/c3d2-networking_storage*
+#
 ;;
    1)
       /bin/echo "" # dummy
@@ -1891,7 +2039,7 @@ esac
 ### // stage1 ###
 ;;
 *)
-echo "usage: $0 { network | hq-storage | hq-printer | config-backup }"
+echo "usage: $0 { network | hq-storage | config-backup }"
 ;;
 esac
 exit 0
