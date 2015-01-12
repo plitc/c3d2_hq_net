@@ -27,7 +27,11 @@ Dependencies
 
 Features
 ========
-* -
+* sniff a little bit the network with tcpdump
+* prefix generated from Proto: IPv4 (0x0800)
+* router lookup from Proto: OSPFv2
+* static DNS list
+* mount remote HQ Storage Server
 
 Platform
 ========
@@ -35,7 +39,7 @@ Platform
 
 Usage
 =====
-    # usage: ./c3d2-networking.sh { network | hq-storage | hq-printer | config-backup }
+    # usage: ./c3d2-networking.sh { network | hq-storage | config-backup }
 
 Errata
 ======

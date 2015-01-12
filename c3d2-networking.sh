@@ -573,7 +573,6 @@ IPCHECK=$(ip a | grep "inet" | egrep -v "127.0.0.1" | awk '{print $2}' | head -n
 if [ -z "$IPCHECK" ]; then
    echo "" # FUU
 else
-
 dialog --title "get_ipv4_address (experimental)" --backtitle "get_ipv4_address (experimental)" --yesno "the next steps are experimental but we try" 5 48
 response2=$?
 case $response2 in
