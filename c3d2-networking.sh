@@ -1350,7 +1350,7 @@ if nc -w $STORAGESMBSRVTIMEOUT -t $STORAGESMBSRVIFIP.10 $STORAGESMBSRVPORT; then
    #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
-STORAGESMBSRVSTATUS=$(mount | grep "rpool" | wc -l)
+STORAGESMBSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
 if [ X"$STORAGESMBSRVSTATUS" = X"1" ]; then
    #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
@@ -1469,7 +1469,7 @@ if nc -w $STORAGENFSSRVTIMEOUT -t $STORAGENFSSRVIFIP.10 $STORAGENFSSRVPORT; then
    #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
-STORAGENFSSRVSTATUS=$(mount | grep "rpool" | wc -l)
+STORAGENFSSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
 if [ X"$STORAGENFSSRVSTATUS" = X"1" ]; then
    #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
@@ -1588,7 +1588,7 @@ if nc -w $STORAGEWEBSRVTIMEOUT -t $STORAGEWEBSRVIFIP.10 $STORAGEWEBSRVPORT; then
    #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
-STORAGEWEBSRVSTATUS=$(mount | grep "rpool" | wc -l)
+STORAGEWEBSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
 if [ X"$STORAGEWEBSRVSTATUS" = X"1" ]; then
    #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
@@ -1711,7 +1711,7 @@ if nc -w $STORAGESSHFSSRVTIMEOUT -t $STORAGESSHFSSRVIFIP.10 $STORAGESSHFSSRVPORT
    #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
-STORAGESSHFSSRVSTATUS=$(mount | grep "rpool" | wc -l)
+STORAGESSHFSSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
 if [ X"$STORAGESSHFSSRVSTATUS" = X"1" ]; then
    #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
@@ -1834,7 +1834,7 @@ if nc -u -w $STORAGEFTPSRVTIMEOUT -t $STORAGEFTPSRVIFIP.10 $STORAGEFTPSRVPORT; t
    #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
-STORAGEFTPSRVSTATUS=$(mount | grep "curlftpfs" | wc -l)
+STORAGEFTPSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
 if [ X"$STORAGEFTPSRVSTATUS" = X"1" ]; then
    #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
