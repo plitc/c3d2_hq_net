@@ -1350,7 +1350,7 @@ if nc -w $STORAGESMBSRVTIMEOUT -t $STORAGESMBSRVIFIP.10 $STORAGESMBSRVPORT; then
    #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
-STORAGESMBSRVSTATUS=$(mount | grep "rpool" | wc -l)
+STORAGESMBSRVSTATUS=$(mount | grep /rpool | wc -l) #todo: test also for fusermount way of mounting -> ${c3d2-storage-localmountpath}
 if [ X"$STORAGESMBSRVSTATUS" = X"1" ]; then
    #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
@@ -1834,7 +1834,7 @@ if nc -u -w $STORAGEFTPSRVTIMEOUT -t $STORAGEFTPSRVIFIP.10 $STORAGEFTPSRVPORT; t
    #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
-STORAGEFTPSRVSTATUS=$(mount | grep "curlftpfs" | wc -l)
+STORAGEFTPSRVSTATUS=$(mount | grep "curlftpfs" | wc -l) #todo: check for other mount-way to ${c3d2-storage-localmountpath}
 if [ X"$STORAGEFTPSRVSTATUS" = X"1" ]; then
    #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
