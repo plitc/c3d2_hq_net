@@ -31,7 +31,7 @@ Features
 * prefix generated from Proto: IPv4 (0x0800)
 * router lookup from Proto: OSPFv2
 * static DNS list
-* mount remote HQ Storage Server
+* mount remote HQ Storage Server (smb/nfs/webdav/sshfs/ftps)
 
 Platform
 ========
