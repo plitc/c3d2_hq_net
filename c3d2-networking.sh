@@ -1247,6 +1247,8 @@ case $DEBIAN in
 debian)
 ### stage2 // ###
 #
+DIALOG=$(/usr/bin/which dialog)
+#
 ### stage3 // ###
 if [ "$MYNAME" = "root" ]; then
 #/ echo "" # dummy
@@ -1266,6 +1268,17 @@ else
    exit 1
 fi
 #
+if [ -z $DIALOG ]; then
+   echo "<--- --- --->"
+   echo "need dialog"
+   echo "<--- --- --->"
+   apt-get update
+   apt-get install dialog
+#/ cd -
+   echo "<--- --- --->"
+#/ else
+#/ echo "" # dummy
+fi
 ### stage4 // ###
 rm -f /tmp/c3d2-networking_storage*
 dialog --title "HQ Storage Server" --backtitle "HQ Storage Server" --radiolist "Choose one of your favorite Protocol:" 15 75 12 \
