@@ -35,7 +35,7 @@ Features
 
 Platform
 ========
-* Linux (Debian)
+* Linux (Debian 8/jessie)
 
 Usage
 =====
@@ -44,4 +44,5 @@ Usage
 Errata
 ======
 * doesn't support iwconfig spaces
+* ftps is very slow
 
