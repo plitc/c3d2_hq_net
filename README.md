@@ -32,6 +32,7 @@ Features
 * router lookup from Proto: OSPFv2
 * static DNS list
 * mount remote HQ Storage Server (smb/nfs/webdav/sshfs/ftps)
+   * smb support for cpool
 
 Platform
 ========

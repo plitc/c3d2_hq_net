@@ -1281,7 +1281,7 @@ if [ -z $DIALOG ]; then
 fi
 ### stage4 // ###
 rm -f /tmp/c3d2-networking_storage*
-dialog --title "HQ Storage Server" --backtitle "HQ Storage Server" --radiolist "Choose one of your favorite Protocol:" 15 75 12 \
+dialog --title "HQ Storage Servers" --backtitle "HQ Storage Servers" --radiolist "Choose one of your favorite Protocol:" 15 75 12 \
    1 "smb        (Server Message Block)" on\
    2 "nfs        (Network File System)" off\
    3 "webdav     (Web-based Distributed Authoring and Versioning)" off\
@@ -1362,6 +1362,7 @@ if nc -w $STORAGESMBSRVTIMEOUT -t $STORAGESMBSRVIFIP.10 $STORAGESMBSRVPORT; then
    #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
+   mkdir -p /c3d2-storage-crypto
 STORAGESMBSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
 if [ X"$STORAGESMBSRVSTATUS" = X"1" ]; then
    #/ echo "" # dummy
@@ -1391,6 +1392,7 @@ esac
 ###
 else
    mount -t cifs //$STORAGESMBSRVIFIP.10/rpool /c3d2-storage -o user=k-ot
+   mount -t cifs //$STORAGESMBSRVIFIP.71/cpool /c3d2-storage-crypto -o user=k-ot
    echo "" # dummy
    df -h
 fi
