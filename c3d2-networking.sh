@@ -302,7 +302,7 @@ if [ -z "$KMODVLAN" ]; then
 #/ else
 #/ echo "" # dummy
 fi
-KMODVLANPERSISTENT=$(cat /etc/modules | grep 8021q)
+KMODVLANPERSISTENT=$(grep "8021q" /etc/modules)
 if [ -z "$KMODVLANPERSISTENT" ]; then
     echo "" # dummy
     echo "<--- --- --->"
@@ -341,7 +341,7 @@ if [ X"$WLANN" = X"1" ]; then
       touch $WPAFILE
       chmod 0600 $WPAFILE
    fi
-   WPAC3D2=$(cat /etc/wpa_supplicant/wpa_supplicant.conf | grep 'ssid="C3D2"')
+   WPAC3D2=$(grep 'ssid="C3D2"' /etc/wpa_supplicant/wpa_supplicant.conf)
    if [ -z "$WPAC3D2" ]; then
 /bin/cat <<WPAC3D2INPUT >> /etc/wpa_supplicant/wpa_supplicant.conf
 ### C3D2 Wireless Network // ###
@@ -402,7 +402,7 @@ IFLIST3="/tmp/c3d2-networking_if_3.txt"
 #/ exit 1
 #/ fi
 nl $IFLIST1 | sed 's/ //g' > $IFLIST2
-dialog --menu "Choose one VLAN RAW Interface:" 15 15 15 `cat $IFLIST2` 2>$IFLIST3
+dialog --menu "Choose one VLAN RAW Interface:" 15 15 15 $(cat $IFLIST2) 2>$IFLIST3
 #/ GETIF=$(cat $IFLIST3 | cut -c1)
 #/ echo $GETIF
 ### fix2 // ###
@@ -410,8 +410,8 @@ awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_if_2.t
 #/ /usr/bin/zsh -c "join /tmp/c3d2-networking_if_2.txt /tmp/c3d2-networking_if_3.txt > /tmp/c3d2-networking_if_4.txt"
 ### // fix2 ###
 GETIF=$(cat /tmp/c3d2-networking_if_4.txt)
-INTERFACES=$(cat /etc/network/interfaces | grep "c3d2-networking" | head -n1 | awk '{print $2}')
-if [ -z $INTERFACES ]; then
+INTERFACES=$(grep "c3d2-networking" /etc/network/interfaces | head -n1 | awk '{print $2}')
+if [ -z "$INTERFACES" ]; then
     echo "" # dummy
     echo "<--- --- --->"
     echo "write new vlan entries in your /etc/network/interfaces config file"
@@ -474,7 +474,7 @@ echo "XXX"
 ### run // ###
 /etc/init.d/networking start
 ### // run ###
-IFSTART=`expr $IFSTART + 50`
+IFSTART=$((expr $IFSTART + 50))
 sleep 1
 done
 ) | dialog --title "/etc/init.d/networking start" --gauge "/etc/init.d/networking start" 20 70 0
@@ -507,9 +507,9 @@ IPV4DNSTESTNEW="/tmp/c3d2-networking_ipv4dnstest2.txt"
 touch $IPV4DNSTEST
 /bin/chmod 0600 $IPV4DNSTEST
 /bin/echo "dnscache.berlin.ccc.de" > $IPV4DNSTEST
-dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --inputbox "Enter a domain for analysis: (for example dnscache.berlin.ccc.de/213.73.91.35)" 8 85 `cat $IPV4DNSTEST` 2>$IPV4DNSTESTNEW
-IPV4DNSTESTVALUE=$(/bin/cat /tmp/c3d2-networking_ipv4dnstest2.txt | sed 's/#//g' | sed 's/%//g' | sed 's/ //g')
-/bin/ping -q -c5 $IPV4DNSTESTVALUE > /dev/null
+dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --inputbox "Enter a domain for analysis: (for example dnscache.berlin.ccc.de/213.73.91.35)" 8 85 $(cat $IPV4DNSTEST) 2>$IPV4DNSTESTNEW
+IPV4DNSTESTVALUE=$(sed 's/#//g' /tmp/c3d2-networking_ipv4dnstest2.txt | sed 's/%//g' | sed 's/ //g')
+/bin/ping -q -c5 "$IPV4DNSTESTVALUE" > /dev/null
 if [ $? -eq 0 ]
 then
    dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --msgbox "It works!" 0 0
@@ -548,9 +548,9 @@ IPV4IPTESTNEW="/tmp/c3d2-networking_ipv4iptest2.txt"
 touch $IPV4IPTEST
 /bin/chmod 0600 $IPV4IPTEST
 /bin/echo "213.73.91.35" > $IPV4IPTEST
-dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --inputbox "Enter a IP for analysis: (for example 213.73.91.35/dnscache.berlin.ccc.de)" 8 85 `cat $IPV4IPTEST` 2>$IPV4IPTESTNEW
-IPV4IPTESTVALUE=$(/bin/cat /tmp/c3d2-networking_ipv4iptest2.txt | sed 's/#//g' | sed 's/%//g' | sed 's/ //g')
-/bin/ping -q -c5 $IPV4IPTESTVALUE > /dev/null
+dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --inputbox "Enter a IP for analysis: (for example 213.73.91.35/dnscache.berlin.ccc.de)" 8 85 $(cat $IPV4IPTEST) 2>$IPV4IPTESTNEW
+IPV4IPTESTVALUE=$(sed 's/#//g' /tmp/c3d2-networking_ipv4iptest2.txt | sed 's/%//g' | sed 's/ //g')
+/bin/ping -q -c5 "$IPV4IPTESTVALUE" > /dev/null
 if [ $? -eq 0 ]
 then
    dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --msgbox "It works!" 0 0
@@ -696,7 +696,7 @@ dialog --radiolist "Select on Interface:" 15 75 12 \
    7 "eth0.104   (vlan104 - hq testing network)" off\
    8 "eth0.105   (vlan105 - hq testing network)" off\
     2>/tmp/c3d2-networking_ifconfig3.txt
-cat /tmp/c3d2-networking_ifconfig3.txt | cut -c1 > /tmp/c3d2-networking_ifconfig4.txt
+cut -c1 /tmp/c3d2-networking_ifconfig3.txt > /tmp/c3d2-networking_ifconfig4.txt
 IFCHOOSELIST="/tmp/c3d2-networking_ifconfig5.txt"
 /bin/echo "1 eth0" > $IFCHOOSELIST
 /bin/echo "2 wlan0" >> $IFCHOOSELIST
@@ -726,7 +726,7 @@ touch $GETIPV4IF
 #/ else
 #/ echo "" # dummy
 #/ fi
-/sbin/ifconfig $GETIPV4IFVALUE up
+/sbin/ifconfig "$GETIPV4IFVALUE" up
 ### // stage6 ###
 
 
@@ -743,7 +743,7 @@ if [ X"$GETIPV4IFVALUE" = X"wlan0" ]; then
 #/ /bin/cat /etc/wpa_supplicant/wpa_supplicant.conf | grep 'ssid' | egrep -v "#" | sed 's/"//g' | awk '{print $1,$2,$3,$4,$5}' > /tmp/get_ipv4_address_iwlist1.txt
 #/ nl /tmp/get_ipv4_address_iwlist1.txt | awk '{print $1,$2,$3,$4,$5}' > /tmp/get_ipv4_address_iwlist2.txt
 #/ GETIPV4IWLIST=$(cat /tmp/get_ipv4_address_iwlist2.txt)
-/bin/cat /etc/wpa_supplicant/wpa_supplicant.conf | grep 'ssid' | egrep -v "#" | sed 's/ssid=//g' > /tmp/get_ipv4_address_iwlist1.txt
+grep 'ssid' /etc/wpa_supplicant/wpa_supplicant.conf | egrep -v "#" | sed 's/ssid=//g' > /tmp/get_ipv4_address_iwlist1.txt
 nl /tmp/get_ipv4_address_iwlist1.txt > /tmp/get_ipv4_address_iwlist2.txt
 /bin/sed 's/$/ off/' /tmp/get_ipv4_address_iwlist2.txt > /tmp/get_ipv4_address_iwlist3.txt
 /bin/sed '0,/$/s/off/on/' /tmp/get_ipv4_address_iwlist3.txt > /tmp/get_ipv4_address_iwlist4.txt
@@ -803,17 +803,17 @@ echo "XXX"
    #/ /bin/echo "" > $GETIPV4
    #/ /bin/echo "" > $GETIPV4Z
    #/ ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | egrep "0x0800|0x0806") >> $GETIPV4 2>&1) &
-( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5) 2>&1 >> $GETIPV4Z) &
+( (/usr/sbin/tcpdump -e -n -i "$GETIPV4IFVALUE" -c 5) >> $GETIPV4Z 2>&1) &
    #/ sleep 1
    #/ ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 2 | grep "0x0806" | awk '{print $12}') >> $GETIPV4 2>&1) &&
    #/ /bin/cat $GETIPV4Z | egrep "0x0800|0x0806" >> $GETIPV4
 ### // run ###
-TCPDUMP1=`expr $TCPDUMP1 + 5`
+TCPDUMP1=$(expr $TCPDUMP1 + 5)
 sleep 1
 done
 ) | dialog --title "tcpdump - network discovery" --gauge "discover the local network" 20 70 0
 
-/bin/cat $GETIPV4Z | egrep "0x0800|0x0806" > $GETIPV4
+egrep "0x0800|0x0806" $GETIPV4Z > $GETIPV4
 echo "" # dummy
 echo "<--- --- --- --- --- --- --- --- --->"
 
@@ -822,15 +822,15 @@ CLASSBTEST=$(grep -F "172.16." $GETIPV4 | wc -l | sed 's/ //g')
 CLASSATEST=$(grep -F "10." $GETIPV4 | wc -l | sed 's/ //g')
 CLASSDN42ATEST=$(grep -F "172.22." $GETIPV4 | wc -l | sed 's/ //g')
 
-if [ $CLASSCTEST = 0 ]; then
+if [ "$CLASSCTEST" = 0 ]; then
    echo "WARNING: can't find class C network, try again ..."
    echo "<--- --- --->"
 ###
-   if [ $CLASSBTEST = 0 ]; then
+   if [ "$CLASSBTEST" = 0 ]; then
       echo "WARNING: can't find class B network, try again ..."
       echo "<--- --- --->"
 ### ###
-      if [ $CLASSATEST = 0 ]; then
+      if [ "$CLASSATEST" = 0 ]; then
          echo "WARNING: can't find class A network, try again ..."
          echo "<--- --- --->"
 ### ### ###
@@ -838,7 +838,7 @@ if [ $CLASSCTEST = 0 ]; then
             # exit 1
             echo "<--- --- --->"
 ### ### ### DN42a // ### ### ###
-               if [ $CLASSDN42ATEST = 0 ]; then
+               if [ "$CLASSDN42ATEST" = 0 ]; then
                   echo "ERROR: ... doesn't work ... the tcpdump lookup was probably too short, try again"
                   echo "<--- --- --- --- --- --- --- --- --->"
                   exit 1
@@ -846,9 +846,9 @@ if [ $CLASSCTEST = 0 ]; then
                else
                   echo 'looks like ... DN42 A network'
 # <--- --- --- --- --- --- --- --- ---//
-   CLASSDN42ANET=$(cat $GETIPV4 | grep "172.22" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "172.22" | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
-   # /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSDN42ANET
-   /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSDN42ANET > $GETIPV4ARPDIG
+   CLASSDN42ANET=$(grep "172.22" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "172.22" | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
+   # /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSDN42ANET"
+   /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSDN42ANET" > $GETIPV4ARPDIG
    CLASSDN42APRE=$(cat $GETIPV4 | grep "172.22" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
    GETIPV4CURRDN42A=$(cat $GETIPV4ARPDIG | grep "172.22" | awk '{print $1}' | sort)
    netdn42a=$CLASSDN42APRE; idn42a=1; GETIPV4FULLDN42A=`while [ $idn42a -lt 255 ]; do echo $netdn42a.$idn42a; idn42a=$(($idn42a+1)); done`
