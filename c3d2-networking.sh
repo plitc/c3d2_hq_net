@@ -594,13 +594,22 @@ dialog --radiolist "Select on Interface:" 15 75 12 \
 cut -c1 /tmp/c3d2-networking_ifconfig3.txt > /tmp/c3d2-networking_ifconfig4.txt
 IFCHOOSELIST="/tmp/c3d2-networking_ifconfig5.txt"
 /bin/echo "1 eth0" > $IFCHOOSELIST
-/bin/echo "2 wlan0" >> $IFCHOOSELIST
-/bin/echo "3 eth0.100" >> $IFCHOOSELIST
-/bin/echo "4 eth0.101" >> $IFCHOOSELIST
-/bin/echo "5 eth0.102" >> $IFCHOOSELIST
-/bin/echo "6 eth0.103" >> $IFCHOOSELIST
-/bin/echo "7 eth0.104" >> $IFCHOOSELIST
-/bin/echo "8 eth0.105" >> $IFCHOOSELIST
+# /bin/echo "2 wlan0" >> $IFCHOOSELIST
+# /bin/echo "3 eth0.100" >> $IFCHOOSELIST
+# /bin/echo "4 eth0.101" >> $IFCHOOSELIST
+# /bin/echo "5 eth0.102" >> $IFCHOOSELIST
+# /bin/echo "6 eth0.103" >> $IFCHOOSELIST
+# /bin/echo "7 eth0.104" >> $IFCHOOSELIST
+# /bin/echo "8 eth0.105" >> $IFCHOOSELIST
+{
+echo "2 wlan0"
+echo "3 eth0.100"
+echo "4 eth0.101"
+echo "5 eth0.102"
+echo "6 eth0.103"
+echo "7 eth0.104"
+echo "8 eth0.105"
+} >> $IFCHOOSELIST
 ### fix3 // ###
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_ifconfig5.txt /tmp/c3d2-networking_ifconfig4.txt | awk '{print $2}' > /tmp/c3d2-networking_ifconfig6.txt
 #/ /usr/bin/zsh -c "join /tmp/c3d2-networking_ifconfig4.txt /tmp/c3d2-networking_ifconfig5.txt > /tmp/c3d2-networking_ifconfig6.txt"
@@ -701,7 +710,7 @@ if [ "$CLASSCTEST" = 0 ]; then
    /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSDN42ANET" > $GETIPV4ARPDIG
    CLASSDN42APRE=$(grep "172.22" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
    GETIPV4CURRDN42A=$(grep "172.22" $GETIPV4ARPDIG | awk '{print $1}' | sort)
-   netdn42a=$CLASSDN42APRE; idn42a=1; GETIPV4FULLDN42A=$(while [ $idn42a -lt 255 ]; do echo $netdn42a.$idn42a; idn42a=$(($idn42a+1)); done)
+   netdn42a=$CLASSDN42APRE; idn42a=1; GETIPV4FULLDN42A=$(while [ $idn42a -lt 255 ]; do echo "$netdn42a".$idn42a; idn42a=$((idn42a+1)); done)
    echo "$GETIPV4CURRDN42A" > $GETIPV4CURRDN42ALIST
    echo "$GETIPV4FULLDN42A" > $GETIPV4FULLDN42ALIST
    tr ' ' '\n' < $GETIPV4CURRDN42ALIST > $GETIPV4CURRDN42ALISTL
