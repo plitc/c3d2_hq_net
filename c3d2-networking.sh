@@ -594,13 +594,6 @@ dialog --radiolist "Select on Interface:" 15 75 12 \
 cut -c1 /tmp/c3d2-networking_ifconfig3.txt > /tmp/c3d2-networking_ifconfig4.txt
 IFCHOOSELIST="/tmp/c3d2-networking_ifconfig5.txt"
 /bin/echo "1 eth0" > $IFCHOOSELIST
-# /bin/echo "2 wlan0" >> $IFCHOOSELIST
-# /bin/echo "3 eth0.100" >> $IFCHOOSELIST
-# /bin/echo "4 eth0.101" >> $IFCHOOSELIST
-# /bin/echo "5 eth0.102" >> $IFCHOOSELIST
-# /bin/echo "6 eth0.103" >> $IFCHOOSELIST
-# /bin/echo "7 eth0.104" >> $IFCHOOSELIST
-# /bin/echo "8 eth0.105" >> $IFCHOOSELIST
 {
 echo "2 wlan0"
 echo "3 eth0.100"
@@ -612,7 +605,6 @@ echo "8 eth0.105"
 } >> $IFCHOOSELIST
 ### fix3 // ###
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_ifconfig5.txt /tmp/c3d2-networking_ifconfig4.txt | awk '{print $2}' > /tmp/c3d2-networking_ifconfig6.txt
-#/ /usr/bin/zsh -c "join /tmp/c3d2-networking_ifconfig4.txt /tmp/c3d2-networking_ifconfig5.txt > /tmp/c3d2-networking_ifconfig6.txt"
 ### // fix3 ###
 sleep 1
 GETIPV4IFVALUE=$(cat /tmp/c3d2-networking_ifconfig6.txt)
@@ -751,7 +743,7 @@ sleep 4
    /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSANET" > $GETIPV4ARPDIG
    CLASSAPRE=$(grep "10." $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
    GETIPV4CURRA=$(grep "10." $GETIPV4ARPDIG | awk '{print $1}' | sort)
-   neta1=$CLASSAPRE; ia1=1; GETIPV4FULLA=$(while [ $ia1 -lt 255 ]; do echo $neta1.$ia1; ia1=$(($ia1+1)); done)
+   neta1=$CLASSAPRE; ia1=1; GETIPV4FULLA=$(while [ $ia1 -lt 255 ]; do echo "$neta1".$ia1; ia1=$((ia1+1)); done)
    echo "$GETIPV4CURRA" > $GETIPV4CURRALIST
    echo "$GETIPV4FULLA" > $GETIPV4FULLALIST
    tr ' ' '\n' < $GETIPV4CURRALIST > $GETIPV4CURRALISTL
@@ -790,7 +782,7 @@ sleep 4
    /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSBNET" > $GETIPV4ARPDIG
    CLASSBPRE=$(grep "172.16" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
    GETIPV4CURRB=$(grep "172.16" $GETIPV4ARPDIG | awk '{print $1}' | sort)
-   netb1=$CLASSBPRE; ib1=1; GETIPV4FULLB=$(while [ $ib1 -lt 255 ]; do echo $netb1.$ib1; ib1=$(($ib1+1)); done)
+   netb1=$CLASSBPRE; ib1=1; GETIPV4FULLB=$(while [ $ib1 -lt 255 ]; do echo "$netb1".$ib1; ib1=$((ib1+1)); done)
    echo "$GETIPV4CURRB" > $GETIPV4CURRBLIST
    echo "$GETIPV4FULLB" > $GETIPV4FULLBLIST
    tr ' ' '\n' < $GETIPV4CURRBLIST > $GETIPV4CURRBLISTL
@@ -829,14 +821,14 @@ else
    /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSCNET" > $GETIPV4ARPDIG
    CLASSCPRE=$(grep "192.168" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
    GETIPV4CURRC=$(grep "192.168" $GETIPV4ARPDIG | awk '{print $1}' | sort)
-   netc1=$CLASSCPRE; ic1=1; GETIPV4FULLC=$(while [ $ic1 -lt 255 ]; do echo $netc1.$ic1; ic1=$(($ic1+1)); done)
+   netc1=$CLASSCPRE; ic1=1; GETIPV4FULLC=$(while [ $ic1 -lt 255 ]; do echo "$netc1".$ic1; ic1=$((ic1+1)); done)
    echo "$GETIPV4CURRC" > $GETIPV4CURRCLIST
    echo "$GETIPV4FULLC" > $GETIPV4FULLCLIST
    tr ' ' '\n' < $GETIPV4CURRCLIST > $GETIPV4CURRCLISTL
    tr ' ' '\n' < $GETIPV4FULLCLIST > $GETIPV4FULLCLISTL
    sort -n $GETIPV4CURRCLISTL $GETIPV4FULLCLISTL | uniq -u > $GETIPV4SORTCLISTL
    nl $GETIPV4SORTCLISTL | sed 's/ //g' > $GETIPV4MENUC
-   dialog --menu "Choose one (free) IP:" 45 45 40 $(cat "$GETIPV4MENUC") 2>$GETIPV4MENUCLIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 "$(cat "$GETIPV4MENUC")" 2>$GETIPV4MENUCLIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menuc.log > /tmp/get_ipv4_address_menuc_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menuc_fix.log /tmp/get_ipv4_address_menuclist.log | awk '{print $2}' > /tmp/get_ipv4_address_menuc_ip.log
@@ -1018,18 +1010,20 @@ cp -f /tmp/get_ipv4_resolv.conf /etc/resolv.conf
 GETIPV4INFO="/tmp/get_ipv4_info.log"
 
    echo "" > $GETIPV4INFO
-   echo "<--- --- --- INTERFACE --- --- --->" >> $GETIPV4INFO
-   echo "" >> $GETIPV4INFO
-   ip addr show "$GETIPV4IFVALUE" >> $GETIPV4INFO
-   echo "" >> $GETIPV4INFO
-   echo "<--- --- --- Default v4 Gateway --- --- --->" >> $GETIPV4INFO
-   echo "" >> $GETIPV4INFO
-   netstat -rn -4 >> $GETIPV4INFO
-   echo "" >> $GETIPV4INFO
-   echo "<--- --- --- /etc/resolv.conf --- --- --->" >> $GETIPV4INFO
-   echo "" >> $GETIPV4INFO
-   cat /etc/resolv.conf >> $GETIPV4INFO
-   echo "" >> $GETIPV4INFO
+{
+echo "<--- --- --- INTERFACE --- --- --->"
+echo ""
+ip addr show "$GETIPV4IFVALUE"
+echo ""
+echo "<--- --- --- Default v4 Gateway --- --- --->"
+echo ""
+netstat -rn -4
+echo ""
+echo "<--- --- --- /etc/resolv.conf --- --- --->"
+echo ""
+cat /etc/resolv.conf
+echo ""
+} >> $GETIPV4INFO
 
 dialog --textbox "$GETIPV4INFO" 0 0
 
