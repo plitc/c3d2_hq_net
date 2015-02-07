@@ -698,7 +698,6 @@ if [ "$CLASSCTEST" = 0 ]; then
                   echo 'looks like ... DN42 A network'
 # <--- --- --- --- --- --- --- --- ---//
    CLASSDN42ANET=$(grep "172.22" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "172.22" | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
-   # /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSDN42ANET"
    /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSDN42ANET" > $GETIPV4ARPDIG
    CLASSDN42APRE=$(grep "172.22" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
    GETIPV4CURRDN42A=$(grep "172.22" $GETIPV4ARPDIG | awk '{print $1}' | sort)
@@ -709,7 +708,7 @@ if [ "$CLASSCTEST" = 0 ]; then
    tr ' ' '\n' < $GETIPV4FULLDN42ALIST > $GETIPV4FULLDN42ALISTL
    sort -n $GETIPV4CURRDN42ALISTL $GETIPV4FULLDN42ALISTL | uniq -u > $GETIPV4SORTDN42ALISTL
    nl $GETIPV4SORTDN42ALISTL | sed 's/ //g' > $GETIPV4MENUDN42A
-   dialog --menu "Choose one (free) IP:" 45 45 40 $(cat "$GETIPV4MENUDN42A") 2>$GETIPV4MENUDN42ALIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 "$(cat "$GETIPV4MENUDN42A")" 2>$GETIPV4MENUDN42ALIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menudn42a.log > /tmp/get_ipv4_address_menudn42a_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menudn42a_fix.log /tmp/get_ipv4_address_menudn42alist.log | awk '{print $2}' > /tmp/get_ipv4_address_menudn42a_ip.log
@@ -740,18 +739,17 @@ sleep 4
          echo 'looks like ... class A network'
 # <--- --- --- --- --- --- --- --- ---//
    CLASSANET=$(grep "10." $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "10." | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
-   # /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSANET  
    /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSANET" > $GETIPV4ARPDIG
-   CLASSAPRE=$(cat $GETIPV4 | grep "10." | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
-   GETIPV4CURRA=$(cat $GETIPV4ARPDIG | grep "10." | awk '{print $1}' | sort)
-   neta1=$CLASSAPRE; ia1=1; GETIPV4FULLA=`while [ $ia1 -lt 255 ]; do echo $neta1.$ia1; ia1=$(($ia1+1)); done`
-   echo $GETIPV4CURRA > $GETIPV4CURRALIST
-   echo $GETIPV4FULLA > $GETIPV4FULLALIST
+   CLASSAPRE=$(grep "10." $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
+   GETIPV4CURRA=$(grep "10." $GETIPV4ARPDIG | awk '{print $1}' | sort)
+   neta1=$CLASSAPRE; ia1=1; GETIPV4FULLA=$(while [ $ia1 -lt 255 ]; do echo $neta1.$ia1; ia1=$(($ia1+1)); done)
+   echo "$GETIPV4CURRA" > $GETIPV4CURRALIST
+   echo "$GETIPV4FULLA" > $GETIPV4FULLALIST
    tr ' ' '\n' < $GETIPV4CURRALIST > $GETIPV4CURRALISTL
    tr ' ' '\n' < $GETIPV4FULLALIST > $GETIPV4FULLALISTL
    sort -n $GETIPV4CURRALISTL $GETIPV4FULLALISTL | uniq -u > $GETIPV4SORTALISTL
    nl $GETIPV4SORTALISTL | sed 's/ //g' > $GETIPV4MENUA
-   dialog --menu "Choose one (free) IP:" 45 45 40 `cat $GETIPV4MENUA` 2>$GETIPV4MENUALIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 $(cat $GETIPV4MENUA) 2>$GETIPV4MENUALIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menua.log > /tmp/get_ipv4_address_menua_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menua_fix.log /tmp/get_ipv4_address_menualist.log | awk '{print $2}' > /tmp/get_ipv4_address_menua_ip.log
@@ -759,14 +757,14 @@ awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menua
    SETAIP=$(cat /tmp/get_ipv4_address_menua_ip.log)
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUAIPFUNC
    GETIPV4MENUAIPFUNCN=$(cat $GETIPV4MENUAIPFUNC | sed 's/#//g' | sed 's/%//g')
-   if [ $GETIPV4MENUCIPFUNCN = 1 ]; then
-      ip addr flush dev $GETIPV4IFVALUE
-      ip addr add $SETAIP/24 dev $GETIPV4IFVALUE
+   if [ "$GETIPV4MENUAIPFUNCN" = 1 ]; then
+      ip addr flush dev "$GETIPV4IFVALUE"
+      ip addr add "$SETAIP"/24 dev "$GETIPV4IFVALUE"
    else
-      ip addr add $SETAIP/24 dev $GETIPV4IFVALUE
+      ip addr add "$SETAIP"/24 dev "$GETIPV4IFVALUE"
    fi
 ### ### ### ### ### ### ### ### ###
-NEWAIP=$(ip addr show $GETIPV4IFVALUE | grep --color $SETAIP)
+NEWAIP=$(ip addr show "$GETIPV4IFVALUE" | grep --color $SETAIP)
 echo ""
 ip addr show $GETIPV4IFVALUE
 echo ""
@@ -779,14 +777,13 @@ sleep 4
    else
       echo 'looks like ... class B network'
 # <--- --- --- --- --- --- --- --- ---//
-   CLASSBNET=$(cat $GETIPV4 | grep "172.16" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "172.16" | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
-   # /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSBNET
-   /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSBNET > $GETIPV4ARPDIG
-   CLASSBPRE=$(cat $GETIPV4 | grep "172.16" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
+   CLASSBNET=$(grep "172.16" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "172.16" | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
+   /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSBNET" > $GETIPV4ARPDIG
+   CLASSBPRE=$(grep "172.16" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
    GETIPV4CURRB=$(cat $GETIPV4ARPDIG | grep "172.16" | awk '{print $1}' | sort)
    netb1=$CLASSBPRE; ib1=1; GETIPV4FULLB=`while [ $ib1 -lt 255 ]; do echo $netb1.$ib1; ib1=$(($ib1+1)); done`
-   echo $GETIPV4CURRB > $GETIPV4CURRBLIST
-   echo $GETIPV4FULLB > $GETIPV4FULLBLIST
+   echo "$GETIPV4CURRB" > $GETIPV4CURRBLIST
+   echo "$GETIPV4FULLB" > $GETIPV4FULLBLIST
    tr ' ' '\n' < $GETIPV4CURRBLIST > $GETIPV4CURRBLISTL
    tr ' ' '\n' < $GETIPV4FULLBLIST > $GETIPV4FULLBLISTL
    sort -n $GETIPV4CURRBLISTL $GETIPV4FULLBLISTL | uniq -u > $GETIPV4SORTBLISTL
