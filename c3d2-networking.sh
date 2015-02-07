@@ -381,7 +381,7 @@ echo "XXX"
 ### run // ###
 /etc/init.d/networking start
 ### // run ###
-IFSTART=$(expr $IFSTART + 50)
+IFSTART=$(("$IFSTART" + 50))
 sleep 1
 done
 ) | dialog --title "/etc/init.d/networking start" --gauge "/etc/init.d/networking start" 20 70 0
