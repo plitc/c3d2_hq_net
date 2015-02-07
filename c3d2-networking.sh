@@ -749,14 +749,14 @@ sleep 4
    tr ' ' '\n' < $GETIPV4FULLALIST > $GETIPV4FULLALISTL
    sort -n $GETIPV4CURRALISTL $GETIPV4FULLALISTL | uniq -u > $GETIPV4SORTALISTL
    nl $GETIPV4SORTALISTL | sed 's/ //g' > $GETIPV4MENUA
-   dialog --menu "Choose one (free) IP:" 45 45 40 $(cat $GETIPV4MENUA) 2>$GETIPV4MENUALIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 "$(cat $GETIPV4MENUA)" 2>$GETIPV4MENUALIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menua.log > /tmp/get_ipv4_address_menua_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menua_fix.log /tmp/get_ipv4_address_menualist.log | awk '{print $2}' > /tmp/get_ipv4_address_menua_ip.log
 ### // fix ###
    SETAIP=$(cat /tmp/get_ipv4_address_menua_ip.log)
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUAIPFUNC
-   GETIPV4MENUAIPFUNCN=$(cat $GETIPV4MENUAIPFUNC | sed 's/#//g' | sed 's/%//g')
+   GETIPV4MENUAIPFUNCN=$(sed 's/#//g' $GETIPV4MENUAIPFUNC | sed 's/%//g')
    if [ "$GETIPV4MENUAIPFUNCN" = 1 ]; then
       ip addr flush dev "$GETIPV4IFVALUE"
       ip addr add "$SETAIP"/24 dev "$GETIPV4IFVALUE"
@@ -766,7 +766,7 @@ awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menua
 ### ### ### ### ### ### ### ### ###
 NEWAIP=$(ip addr show "$GETIPV4IFVALUE" | grep --color $SETAIP)
 echo ""
-ip addr show $GETIPV4IFVALUE
+ip addr show "$GETIPV4IFVALUE"
 echo ""
 echo "Your new IP: $NEWAIP"
 sleep 4
@@ -780,32 +780,32 @@ sleep 4
    CLASSBNET=$(grep "172.16" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "172.16" | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
    /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSBNET" > $GETIPV4ARPDIG
    CLASSBPRE=$(grep "172.16" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
-   GETIPV4CURRB=$(cat $GETIPV4ARPDIG | grep "172.16" | awk '{print $1}' | sort)
-   netb1=$CLASSBPRE; ib1=1; GETIPV4FULLB=`while [ $ib1 -lt 255 ]; do echo $netb1.$ib1; ib1=$(($ib1+1)); done`
+   GETIPV4CURRB=$(grep "172.16" $GETIPV4ARPDIG | awk '{print $1}' | sort)
+   netb1=$CLASSBPRE; ib1=1; GETIPV4FULLB=$(while [ $ib1 -lt 255 ]; do echo $netb1.$ib1; ib1=$(($ib1+1)); done)
    echo "$GETIPV4CURRB" > $GETIPV4CURRBLIST
    echo "$GETIPV4FULLB" > $GETIPV4FULLBLIST
    tr ' ' '\n' < $GETIPV4CURRBLIST > $GETIPV4CURRBLISTL
    tr ' ' '\n' < $GETIPV4FULLBLIST > $GETIPV4FULLBLISTL
    sort -n $GETIPV4CURRBLISTL $GETIPV4FULLBLISTL | uniq -u > $GETIPV4SORTBLISTL
    nl $GETIPV4SORTBLISTL | sed 's/ //g' > $GETIPV4MENUB
-   dialog --menu "Choose one (free) IP:" 45 45 40 `cat $GETIPV4MENUB` 2>$GETIPV4MENUBLIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 $(cat "$GETIPV4MENUB") 2>$GETIPV4MENUBLIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menub.log > /tmp/get_ipv4_address_menub_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menub_fix.log /tmp/get_ipv4_address_menublist.log | awk '{print $2}' > /tmp/get_ipv4_address_menub_ip.log
 ### // fix ###
    SETBIP=$(cat /tmp/get_ipv4_address_menub_ip.log)
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUBIPFUNC
-   GETIPV4MENUBIPFUNCN=$(cat $GETIPV4MENUBIPFUNC | sed 's/#//g' | sed 's/%//g')
-   if [ $GETIPV4MENUBIPFUNCN = 1 ]; then
-      ip addr flush dev $GETIPV4IFVALUE
-      ip addr add $SETBIP/24 dev $GETIPV4IFVALUE
+   GETIPV4MENUBIPFUNCN=$(sed 's/#//g' $GETIPV4MENUBIPFUNC | sed 's/%//g')
+   if [ "$GETIPV4MENUBIPFUNCN" = 1 ]; then
+      ip addr flush dev "$GETIPV4IFVALUE"
+      ip addr add "$SETBIP"/24 dev "$GETIPV4IFVALUE"
    else   
-      ip addr add $SETBIP/24 dev $GETIPV4IFVALUE
+      ip addr add "$SETBIP"/24 dev "$GETIPV4IFVALUE"
    fi
 ### ### ### ### ### ### ### ### ###
-NEWBIP=$(ip addr show $GETIPV4IFVALUE | grep --color $SETBIP)
+NEWBIP=$(ip addr show "$GETIPV4IFVALUE" | grep --color "$SETBIP")
 echo ""
-ip addr show $GETIPV4IFVALUE
+ip addr show "$GETIPV4IFVALUE"
 echo ""
 echo "Your new IP: $NEWBIP"
 sleep 4
@@ -816,36 +816,35 @@ sleep 4
 else
    echo 'looks like ... class C network'
 # <--- --- --- --- --- --- --- --- ---//
-   CLASSCNET=$(cat $GETIPV4 | grep "192.168" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "192.168" | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
-   # /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSCNET
-   /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSCNET > $GETIPV4ARPDIG
-   CLASSCPRE=$(cat $GETIPV4 | grep "192.168" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
-   GETIPV4CURRC=$(cat $GETIPV4ARPDIG | grep "192.168" | awk '{print $1}' | sort)
+   CLASSCNET=$(grep "192.168" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "192.168" | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
+   /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSCNET" > $GETIPV4ARPDIG
+   CLASSCPRE=$(grep "192.168" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
+   GETIPV4CURRC=$(grep "192.168" $GETIPV4ARPDIG | awk '{print $1}' | sort)
    netc1=$CLASSCPRE; ic1=1; GETIPV4FULLC=`while [ $ic1 -lt 255 ]; do echo $netc1.$ic1; ic1=$(($ic1+1)); done`
-   echo $GETIPV4CURRC > $GETIPV4CURRCLIST
-   echo $GETIPV4FULLC > $GETIPV4FULLCLIST
+   echo "$GETIPV4CURRC" > $GETIPV4CURRCLIST
+   echo "$GETIPV4FULLC" > $GETIPV4FULLCLIST
    tr ' ' '\n' < $GETIPV4CURRCLIST > $GETIPV4CURRCLISTL
    tr ' ' '\n' < $GETIPV4FULLCLIST > $GETIPV4FULLCLISTL
    sort -n $GETIPV4CURRCLISTL $GETIPV4FULLCLISTL | uniq -u > $GETIPV4SORTCLISTL
    nl $GETIPV4SORTCLISTL | sed 's/ //g' > $GETIPV4MENUC
-   dialog --menu "Choose one (free) IP:" 45 45 40 `cat $GETIPV4MENUC` 2>$GETIPV4MENUCLIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 $(cat "$GETIPV4MENUC") 2>$GETIPV4MENUCLIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menuc.log > /tmp/get_ipv4_address_menuc_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menuc_fix.log /tmp/get_ipv4_address_menuclist.log | awk '{print $2}' > /tmp/get_ipv4_address_menuc_ip.log
 ### // fix ###
    SETCIP=$(cat /tmp/get_ipv4_address_menuc_ip.log)
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUCIPFUNC
-   GETIPV4MENUCIPFUNCN=$(cat $GETIPV4MENUCIPFUNC | sed 's/#//g' | sed 's/%//g')
-   if [ $GETIPV4MENUCIPFUNCN = 1 ]; then
-      ip addr flush dev $GETIPV4IFVALUE
-      ip addr add $SETCIP/24 dev $GETIPV4IFVALUE
+   GETIPV4MENUCIPFUNCN=$(sed 's/#//g' $GETIPV4MENUCIPFUNC | sed 's/%//g')
+   if [ "$GETIPV4MENUCIPFUNCN" = 1 ]; then
+      ip addr flush dev "$GETIPV4IFVALUE"
+      ip addr add "$SETCIP"/24 dev "$GETIPV4IFVALUE"
    else
-      ip addr add $SETCIP/24 dev $GETIPV4IFVALUE
+      ip addr add "$SETCIP"/24 dev "$GETIPV4IFVALUE"
    fi
 ### ### ### ### ### ### ### ### ###
-NEWCIP=$(ip addr show $GETIPV4IFVALUE | grep --color $SETCIP)
+NEWCIP=$(ip addr show "$GETIPV4IFVALUE" | grep --color "$SETCIP")
 echo ""
-ip addr show $GETIPV4IFVALUE
+ip addr show "$GETIPV4IFVALUE"
 echo ""
 echo "Your new IP: $NEWCIP"
 sleep 4
@@ -870,31 +869,31 @@ echo "XXX"
 echo "discovering local router: ($TCPDUMP2 percent)"   
 echo "XXX"
 ### run // ###
-( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5) 2>&1 >> $GETIPV4ROUTER) &
+( (/usr/sbin/tcpdump -e -n -i "$GETIPV4IFVALUE" -c 5) >> $GETIPV4ROUTER 2>&1) &
 ### // run ###
-TCPDUMP2=`expr $TCPDUMP2 + 5`
+TCPDUMP2=$(expr $TCPDUMP2 + 5)
 sleep 1
 done
 ) | dialog --title "tcpdump - router discovery" --gauge "discover local router" 20 70 0
-   /bin/cat $GETIPV4ROUTER | grep --color "OSPFv2" | awk '{print $10}' | sort | uniq > $GETIPV4ROUTER2
+   grep --color "OSPFv2" "$GETIPV4ROUTER" | awk '{print $10}' | sort | uniq > $GETIPV4ROUTER2
    nl $GETIPV4ROUTER2 | sed 's/ //g' > $GETIPV4ROUTERLIST
-   dialog --menu "Choose one default Router:" 10 30 40 `cat $GETIPV4ROUTERLIST` 2>$GETIPV4ROUTERLISTMENU
+   dialog --menu "Choose one default Router:" 10 30 40 $(cat "$GETIPV4ROUTERLIST") 2>$GETIPV4ROUTERLISTMENU
 ### fix4 // ###
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_router_list.log /tmp/get_ipv4_router_list_menu.log > /tmp/get_ipv4_router_list_menu_choosed.log
 ### // fix4 ###
    SETROUTERIP=$(cat /tmp/get_ipv4_router_list_menu_choosed.log | awk '{print $2}')
-if [ -z $SETROUTERIP ]; then
+if [ -z "$SETROUTERIP" ]; then
    SETROUTERIPNEW="/tmp/get_ipv4_router_new.txt"
    dialog --title "Default Router IP" --backtitle "Default Router IP" --inputbox "We can't find a valid router with sniffing OSPF, enter the ip manually" 5 75 2>$SETROUTERIPNEW
    SETROUTERIPNEWVALUE=$(cat /tmp/get_ipv4_router_new.txt)
    echo "<--- set default router // --->"
    route del default
-   route add default gw $SETROUTERIPNEWVALUE dev $GETIPV4IFVALUE
+   route add default gw "$SETROUTERIPNEWVALUE" dev "$GETIPV4IFVALUE"
    echo "<--- // set default router --->"
 else
    echo "<--- set default router // --->"
    route del default
-   route add default gw $SETROUTERIP dev $GETIPV4IFVALUE
+   route add default gw "$SETROUTERIP" dev "$GETIPV4IFVALUE"
    echo "<--- // set default router --->"
 fi
 
@@ -1007,14 +1006,12 @@ cp -f /tmp/get_ipv4_resolv.conf /etc/resolv.conf
 
 # <--- --- --- --- INFO Box // --- --- --- ---//
 
-#/ clear
-
 GETIPV4INFO="/tmp/get_ipv4_info.log"
 
    echo "" > $GETIPV4INFO
    echo "<--- --- --- INTERFACE --- --- --->" >> $GETIPV4INFO
    echo "" >> $GETIPV4INFO
-   ip addr show $GETIPV4IFVALUE >> $GETIPV4INFO
+   ip addr show "$GETIPV4IFVALUE" >> $GETIPV4INFO
    echo "" >> $GETIPV4INFO
    echo "<--- --- --- Default v4 Gateway --- --- --->" >> $GETIPV4INFO
    echo "" >> $GETIPV4INFO
@@ -1121,13 +1118,13 @@ storage1=$?
 case $storage1 in
    0)
       /bin/echo "" # dummy
-cat /tmp/c3d2-networking_storage_1.txt | cut -c1 > /tmp/c3d2-networking_storage_2.txt
+cut -c1 /tmp/c3d2-networking_storage_1.txt > /tmp/c3d2-networking_storage_2.txt
 STORAGEPROTO=$(cat /tmp/c3d2-networking_storage_2.txt)
 #
 ### // samba //
 if [ X"$STORAGEPROTO" = X"1" ]; then
 STORAGESMB=$(dpkg -l | grep cifs-utils | awk '{print $2}')
-if [ -z $STORAGESMB ]; then
+if [ -z "$STORAGESMB" ]; then
    echo "<--- --- --->"
    echo "need cifs-utils (but disable samba daemon)"
    echo "<--- --- --->"
@@ -1154,9 +1151,9 @@ case $storagesmb1 in
    0)
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_storage_if_4.txt /tmp/c3d2-networking_storage_if_5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/c3d2-networking_storage_if_6.txt
 STORAGESMBSRVIFCHOOSE=$(cat /tmp/c3d2-networking_storage_if_6.txt)
-ip addr show $STORAGESMBSRVIFCHOOSE | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_smb_ip1.txt
+ip addr show "$STORAGESMBSRVIFCHOOSE" | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_smb_ip1.txt
 STORAGESMBSRVIFIP=$(cat /tmp/c3d2-networking_storage_smb_ip1.txt)
-if [ -z $STORAGESMBSRVIFIP ]; then
+if [ -z "$STORAGESMBSRVIFIP" ]; then
    echo "" # dummy
    echo "" # dummy
    echo "ERROR: can't catch the interface ipv4 address"
@@ -1165,7 +1162,7 @@ fi
 STORAGESMBSRVPORT=445
 STORAGESMBSRVTIMEOUT=1
 
-if nc -w $STORAGESMBSRVTIMEOUT -t $STORAGESMBSRVIFIP.10 $STORAGESMBSRVPORT; then
+if nc -w $STORAGESMBSRVTIMEOUT -t "$STORAGESMBSRVIFIP".10 $STORAGESMBSRVPORT; then
    echo "" # dummy
    echo "" # dummy
    echo "INFO: I was able to connect to $STORAGESMBSRVIFIP.10:${STORAGESMBSRVPORT}"
@@ -1173,7 +1170,7 @@ if nc -w $STORAGESMBSRVTIMEOUT -t $STORAGESMBSRVIFIP.10 $STORAGESMBSRVPORT; then
    echo "" # dummy
    mkdir -p /c3d2-storage
    mkdir -p /c3d2-storage-crypto
-STORAGESMBSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
+STORAGESMBSRVSTATUS=$(mount | grep -c "c3d2-storage")
 if [ X"$STORAGESMBSRVSTATUS" = X"1" ]; then
    echo "ERROR: storage is already mounted"
    sleep 2
@@ -1198,8 +1195,8 @@ case $storagesmb2 in
 esac
 ###
 else
-   mount -t cifs //$STORAGESMBSRVIFIP.10/rpool /c3d2-storage -o user=k-ot
-   mount -t cifs //$STORAGESMBSRVIFIP.71/cpool /c3d2-storage-crypto -o user=k-ot
+   mount -t cifs //"$STORAGESMBSRVIFIP".10/rpool /c3d2-storage -o user=k-ot
+   mount -t cifs //"$STORAGESMBSRVIFIP".71/cpool /c3d2-storage-crypto -o user=k-ot
    echo "" # dummy
    df -h
 fi
@@ -1231,7 +1228,7 @@ rm -f /tmp/c3d2-networking_storage*
 if [ X"$STORAGEPROTO" = X"2" ]; then
       /bin/echo "" # dummy
 STORAGENFS=$(dpkg -l | grep nfs-common | awk '{print $2}')
-if [ -z $STORAGENFS ]; then
+if [ -z "$STORAGENFS" ]; then
    echo "<--- --- --->"
    echo "need nfs-common/portmap"
    echo "<--- --- --->"
@@ -1253,9 +1250,9 @@ case $storagenfs1 in
    0)
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_storage_if_4.txt /tmp/c3d2-networking_storage_if_5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/c3d2-networking_storage_if_6.txt
 STORAGENFSSRVIFCHOOSE=$(cat /tmp/c3d2-networking_storage_if_6.txt)
-ip addr show $STORAGENFSSRVIFCHOOSE | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_nfs_ip1.txt
+ip addr show "$STORAGENFSSRVIFCHOOSE" | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_nfs_ip1.txt
 STORAGENFSSRVIFIP=$(cat /tmp/c3d2-networking_storage_nfs_ip1.txt)
-if [ -z $STORAGENFSSRVIFIP ]; then
+if [ -z "$STORAGENFSSRVIFIP" ]; then
    echo "" # dummy
    echo "" # dummy
    echo "ERROR: can't catch the interface ipv4 address"
@@ -1265,14 +1262,14 @@ fi
 STORAGENFSSRVPORT=2049
 STORAGENFSSRVTIMEOUT=1
 #
-if nc -w $STORAGENFSSRVTIMEOUT -t $STORAGENFSSRVIFIP.10 $STORAGENFSSRVPORT; then
+if nc -w $STORAGENFSSRVTIMEOUT -t "$STORAGENFSSRVIFIP".10 $STORAGENFSSRVPORT; then
    echo "" # dummy
    echo "" # dummy
    echo "INFO: I was able to connect to $STORAGENFSSRVIFIP.10:${STORAGENFSSRVPORT}"
    sleep 2
    echo "" # dummy
    mkdir -p /c3d2-storage
-STORAGENFSSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
+STORAGENFSSRVSTATUS=$(mount | grep -c "c3d2-storage")
 if [ X"$STORAGENFSSRVSTATUS" = X"1" ]; then
    echo "ERROR: storage is already mounted"
    sleep 2
@@ -1298,7 +1295,7 @@ case $storagenfs2 in
 esac
 ###
 else
-   mount -t nfs $STORAGENFSSRVIFIP.10:/mnt/zroot/storage/rpool /c3d2-storage -o soft,timeo=15,noatime
+   mount -t nfs "$STORAGENFSSRVIFIP".10:/mnt/zroot/storage/rpool /c3d2-storage -o soft,timeo=15,noatime
    echo "" # dummy
    df -h
 fi
@@ -1330,7 +1327,7 @@ rm -f /tmp/c3d2-networking_storage*
 if [ X"$STORAGEPROTO" = X"3" ]; then
       /bin/echo "" # dummy
 STORAGEWEB=$(dpkg -l | grep davfs2 | awk '{print $2}')
-if [ -z $STORAGEWEB ]; then
+if [ -z "$STORAGEWEB" ]; then
    echo "<--- --- --->"
    echo "need davfs2"
    echo "<--- --- --->"
@@ -1352,9 +1349,9 @@ case $storageweb1 in
    0)
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_storage_if_4.txt /tmp/c3d2-networking_storage_if_5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/c3d2-networking_storage_if_6.txt
 STORAGEWEBSRVIFCHOOSE=$(cat /tmp/c3d2-networking_storage_if_6.txt)
-ip addr show $STORAGEWEBSRVIFCHOOSE | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_web_ip1.txt
+ip addr show "$STORAGEWEBSRVIFCHOOSE" | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_web_ip1.txt
 STORAGEWEBSRVIFIP=$(cat /tmp/c3d2-networking_storage_web_ip1.txt)
-if [ -z $STORAGEWEBSRVIFIP ]; then
+if [ -z "$STORAGEWEBSRVIFIP" ]; then
    echo "" # dummy
    echo "" # dummy
    echo "ERROR: can't catch the interface ipv4 address"
@@ -1365,14 +1362,14 @@ fi
 STORAGEWEBSRVPORT=8080
 STORAGEWEBSRVTIMEOUT=1
 #
-if nc -w $STORAGEWEBSRVTIMEOUT -t $STORAGEWEBSRVIFIP.10 $STORAGEWEBSRVPORT; then
+if nc -w $STORAGEWEBSRVTIMEOUT -t "$STORAGEWEBSRVIFIP".10 $STORAGEWEBSRVPORT; then
    echo "" # dummy
    echo "" # dummy
    echo "INFO: I was able to connect to $STORAGEWEBSRVIFIP.10:${STORAGEWEBSRVPORT}"
    sleep 2
    echo "" # dummy
    mkdir -p /c3d2-storage
-STORAGEWEBSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
+STORAGEWEBSRVSTATUS=$(mount | grep -c "c3d2-storage")
 if [ X"$STORAGEWEBSRVSTATUS" = X"1" ]; then
    #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
@@ -1402,7 +1399,7 @@ case $storageweb2 in
 esac
 ###
 else
-   mount -t davfs -o username=webdav http://$STORAGEWEBSRVIFIP.10:8080/rpool /c3d2-storage
+   mount -t davfs -o username=webdav http://"$STORAGEWEBSRVIFIP".10:8080/rpool /c3d2-storage
    echo "" # dummy
    df -h
 fi
@@ -1434,7 +1431,7 @@ rm -f /tmp/c3d2-networking_storage*
 if [ X"$STORAGEPROTO" = X"4" ]; then
       /bin/echo "" # dummy
 STORAGESSHFS=$(dpkg -l | grep sshfs | awk '{print $2}')
-if [ -z $STORAGESSHFS ]; then
+if [ -z "$STORAGESSHFS" ]; then
    echo "<--- --- --->"
    echo "need sshfs"
    echo "<--- --- --->"
@@ -1456,9 +1453,9 @@ case $storagesshfs1 in
    0)
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_storage_if_4.txt /tmp/c3d2-networking_storage_if_5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/c3d2-networking_storage_if_6.txt
 STORAGESSHFSSRVIFCHOOSE=$(cat /tmp/c3d2-networking_storage_if_6.txt)
-ip addr show $STORAGESSHFSSRVIFCHOOSE | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_sshfs_ip1.txt
+ip addr show "$STORAGESSHFSSRVIFCHOOSE" | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_sshfs_ip1.txt
 STORAGESSHFSSRVIFIP=$(cat /tmp/c3d2-networking_storage_sshfs_ip1.txt)
-if [ -z $STORAGESSHFSSRVIFIP ]; then
+if [ -z "$STORAGESSHFSSRVIFIP" ]; then
    echo "" # dummy
    echo "" # dummy
    echo "ERROR: can't catch the interface ipv4 address"
@@ -1469,14 +1466,14 @@ STORAGESSHFSSRVTIMEOUT=1
 #
    echo "" # dummy
    echo "" # dummy
-if nc -w $STORAGESSHFSSRVTIMEOUT -t $STORAGESSHFSSRVIFIP.10 $STORAGESSHFSSRVPORT; then
+if nc -w $STORAGESSHFSSRVTIMEOUT -t "$STORAGESSHFSSRVIFIP".10 $STORAGESSHFSSRVPORT; then
    echo "" # dummy
    echo "" # dummy
    echo "INFO: I was able to connect to $STORAGESSHFSSRVIFIP.10:${STORAGESSHFSSRVPORT}"
    sleep 2
    echo "" # dummy
    mkdir -p /c3d2-storage
-STORAGESSHFSSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
+STORAGESSHFSSRVSTATUS=$(mount | grep -c "c3d2-storage")
 if [ X"$STORAGESSHFSSRVSTATUS" = X"1" ]; then
    #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
@@ -1506,7 +1503,7 @@ case $storagesshfs2 in
 esac
 ###
 else
-   sshfs root@$STORAGESSHFSSRVIFIP.10:/mnt/zroot/storage/rpool /c3d2-storage
+   sshfs root@"$STORAGESSHFSSRVIFIP".10:/mnt/zroot/storage/rpool /c3d2-storage
    echo "" # dummy
    df -h
 fi
@@ -1537,7 +1534,7 @@ rm -f /tmp/c3d2-networking_storage*
 if [ X"$STORAGEPROTO" = X"5" ]; then
       /bin/echo "" # dummy
 STORAGEFTP=$(dpkg -l | grep curlftpfs | awk '{print $2}')
-if [ -z $STORAGEFTP ]; then
+if [ -z "$STORAGEFTP" ]; then
    echo "<--- --- --->"
    echo "need curlftpfs"
    echo "<--- --- --->"
@@ -1559,9 +1556,9 @@ case $storageftp1 in
    0)
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_storage_if_4.txt /tmp/c3d2-networking_storage_if_5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/c3d2-networking_storage_if_6.txt
 STORAGEFTPSRVIFCHOOSE=$(cat /tmp/c3d2-networking_storage_if_6.txt)
-ip addr show $STORAGEFTPSRVIFCHOOSE | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_ftp_ip1.txt
+ip addr show "$STORAGEFTPSRVIFCHOOSE" | grep "inet" | head -n 1 | awk '{print $2}' | sed 's/\/24//g' | awk -F. '{print $1"."$2"."$3}' > /tmp/c3d2-networking_storage_ftp_ip1.txt
 STORAGEFTPSRVIFIP=$(cat /tmp/c3d2-networking_storage_ftp_ip1.txt)
-if [ -z $STORAGEFTPSRVIFIP ]; then
+if [ -z "$STORAGEFTPSRVIFIP" ]; then
    echo "" # dummy
    echo "" # dummy
    echo "ERROR: can't catch the interface ipv4 address"
@@ -1573,14 +1570,14 @@ STORAGEFTPSRVTIMEOUT=1
 #
    echo "" # dummy
    echo "" # dummy
-if nc -u -w $STORAGEFTPSRVTIMEOUT -t $STORAGEFTPSRVIFIP.10 $STORAGEFTPSRVPORT; then
+if nc -u -w $STORAGEFTPSRVTIMEOUT -t "$STORAGEFTPSRVIFIP".10 $STORAGEFTPSRVPORT; then
    echo "" # dummy
    echo "" # dummy
    echo "INFO: I was able to connect to $STORAGEFTPSRVIFIP.10:${STORAGEFTPSRVPORT}"
    sleep 2
    echo "" # dummy
    mkdir -p /c3d2-storage
-STORAGEFTPSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
+STORAGEFTPSRVSTATUS=$(mount | grep -c "c3d2-storage")
 if [ X"$STORAGEFTPSRVSTATUS" = X"1" ]; then
    echo "ERROR: storage is already mounted"
    sleep 2
@@ -1613,7 +1610,7 @@ rm -f /root/.netrc
 touch /root/.netrc
 chmod 0600 /root/.netrc
 STORAGEFTPAUTHFILE=$(cat /root/.netrc)
- if [ -z $STORAGEFTPAUTHFILE ]; then
+ if [ -z "$STORAGEFTPAUTHFILE" ]; then
 /bin/cat <<STORAGEFTPLOGIN > /root/.netrc
 ### ### ### c3d2-hq-storage // ### ### ###
 #
@@ -1632,7 +1629,7 @@ sed -i '$s/^/password /' /root/.netrc
 ### // password ###
    echo "" # dummy
    echo "" # dummy
-   curlftpfs -o ssl,no_verify_hostname,no_verify_peer $STORAGEFTPSRVIFIP.10 /c3d2-storage
+   curlftpfs -o ssl,no_verify_hostname,no_verify_peer "$STORAGEFTPSRVIFIP".10 /c3d2-storage
    echo "" # dummy
    df -h
 fi
@@ -1763,8 +1760,8 @@ else
    exit 1
 fi
 ### backup // ###
-cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE
-cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE
+cp -pf /etc/network/interfaces /etc/network/interfaces_"$BACKUPDATE"
+cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_"$BACKUPDATE"
 ### // backup ###
 #
 ### // stage3 ###
