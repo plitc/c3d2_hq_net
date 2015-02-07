@@ -659,7 +659,7 @@ echo "XXX"
 ### run // ###
 ( (/usr/sbin/tcpdump -e -n -i "$GETIPV4IFVALUE" -c 5) >> $GETIPV4Z 2>&1) &
 ### // run ###
-TCPDUMP1=$(expr $TCPDUMP1 + 5)
+TCPDUMP1=$(("$TCPDUMP1" + 5))
 sleep 1
 done
 ) | dialog --title "tcpdump - network discovery" --gauge "discover the local network" 20 70 0
@@ -668,10 +668,10 @@ egrep "0x0800|0x0806" $GETIPV4Z > $GETIPV4
 echo "" # dummy
 echo "<--- --- --- --- --- --- --- --- --->"
 
-CLASSCTEST=$(grep -F "192.168." $GETIPV4 | wc -l | sed 's/ //g')
-CLASSBTEST=$(grep -F "172.16." $GETIPV4 | wc -l | sed 's/ //g')
-CLASSATEST=$(grep -F "10." $GETIPV4 | wc -l | sed 's/ //g')
-CLASSDN42ATEST=$(grep -F "172.22." $GETIPV4 | wc -l | sed 's/ //g')
+CLASSCTEST=$(grep -cF "192.168." $GETIPV4 | sed 's/ //g')
+CLASSBTEST=$(grep -cF "172.16." $GETIPV4 | sed 's/ //g')
+CLASSATEST=$(grep -cF "10." $GETIPV4 | sed 's/ //g')
+CLASSDN42ATEST=$(grep -cF "172.22." $GETIPV4 | sed 's/ //g')
 
 if [ "$CLASSCTEST" = 0 ]; then
    echo "WARNING: can't find class C network, try again ..."
@@ -764,7 +764,7 @@ awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menua
       ip addr add "$SETAIP"/24 dev "$GETIPV4IFVALUE"
    fi
 ### ### ### ### ### ### ### ### ###
-NEWAIP=$(ip addr show "$GETIPV4IFVALUE" | grep --color $SETAIP)
+NEWAIP=$(ip addr show "$GETIPV4IFVALUE" | grep --color "$SETAIP")
 echo ""
 ip addr show "$GETIPV4IFVALUE"
 echo ""
@@ -788,7 +788,7 @@ sleep 4
    tr ' ' '\n' < $GETIPV4FULLBLIST > $GETIPV4FULLBLISTL
    sort -n $GETIPV4CURRBLISTL $GETIPV4FULLBLISTL | uniq -u > $GETIPV4SORTBLISTL
    nl $GETIPV4SORTBLISTL | sed 's/ //g' > $GETIPV4MENUB
-   dialog --menu "Choose one (free) IP:" 45 45 40 $(cat "$GETIPV4MENUB") 2>$GETIPV4MENUBLIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 "$(cat "$GETIPV4MENUB")" 2>$GETIPV4MENUBLIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menub.log > /tmp/get_ipv4_address_menub_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menub_fix.log /tmp/get_ipv4_address_menublist.log | awk '{print $2}' > /tmp/get_ipv4_address_menub_ip.log
@@ -820,7 +820,7 @@ else
    /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSCNET" > $GETIPV4ARPDIG
    CLASSCPRE=$(grep "192.168" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
    GETIPV4CURRC=$(grep "192.168" $GETIPV4ARPDIG | awk '{print $1}' | sort)
-   netc1=$CLASSCPRE; ic1=1; GETIPV4FULLC=`while [ $ic1 -lt 255 ]; do echo $netc1.$ic1; ic1=$(($ic1+1)); done`
+   netc1=$CLASSCPRE; ic1=1; GETIPV4FULLC=$(while [ $ic1 -lt 255 ]; do echo $netc1.$ic1; ic1=$(($ic1+1)); done)
    echo "$GETIPV4CURRC" > $GETIPV4CURRCLIST
    echo "$GETIPV4FULLC" > $GETIPV4FULLCLIST
    tr ' ' '\n' < $GETIPV4CURRCLIST > $GETIPV4CURRCLISTL
@@ -871,17 +871,17 @@ echo "XXX"
 ### run // ###
 ( (/usr/sbin/tcpdump -e -n -i "$GETIPV4IFVALUE" -c 5) >> $GETIPV4ROUTER 2>&1) &
 ### // run ###
-TCPDUMP2=$(expr $TCPDUMP2 + 5)
+TCPDUMP2=$(("$TCPDUMP2" + 5))
 sleep 1
 done
 ) | dialog --title "tcpdump - router discovery" --gauge "discover local router" 20 70 0
    grep --color "OSPFv2" "$GETIPV4ROUTER" | awk '{print $10}' | sort | uniq > $GETIPV4ROUTER2
    nl $GETIPV4ROUTER2 | sed 's/ //g' > $GETIPV4ROUTERLIST
-   dialog --menu "Choose one default Router:" 10 30 40 $(cat "$GETIPV4ROUTERLIST") 2>$GETIPV4ROUTERLISTMENU
+   dialog --menu "Choose one default Router:" 10 30 40 "$(cat "$GETIPV4ROUTERLIST")" 2>$GETIPV4ROUTERLISTMENU
 ### fix4 // ###
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_router_list.log /tmp/get_ipv4_router_list_menu.log > /tmp/get_ipv4_router_list_menu_choosed.log
 ### // fix4 ###
-   SETROUTERIP=$(cat /tmp/get_ipv4_router_list_menu_choosed.log | awk '{print $2}')
+   SETROUTERIP=$(awk '{print $2}' /tmp/get_ipv4_router_list_menu_choosed.log)
 if [ -z "$SETROUTERIP" ]; then
    SETROUTERIPNEW="/tmp/get_ipv4_router_new.txt"
    dialog --title "Default Router IP" --backtitle "Default Router IP" --inputbox "We can't find a valid router with sniffing OSPF, enter the ip manually" 5 75 2>$SETROUTERIPNEW
