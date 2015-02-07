@@ -32,11 +32,11 @@
 
 
 ### stage0 // ###
-DISTRO=$(uname -a)
+#/ DISTRO=$(uname -a)
 #/ DEBIAN=$(uname -a | awk '{print $6}')
-DEBIAN=$(cat /etc/os-release | grep "ID" | egrep -v "VERSION" | sed 's/ID=//g')
+DEBIAN=$(grep "ID" /etc/os-release | egrep -v "VERSION" | sed 's/ID=//g')
 #/ DEBVERSION=$(cat /etc/debian_version | cut -c1)
-DEBVERSION=$(cat /etc/os-release | grep "VERSION_ID" | sed 's/VERSION_ID=//g' | sed 's/"//g')
+DEBVERSION=$(grep "VERSION_ID" /etc/os-release | sed 's/VERSION_ID=//g' | sed 's/"//g')
 MYNAME=$(whoami)
 ### // stage0 ###
 
@@ -55,8 +55,8 @@ IFCONFIG=$(/usr/bin/which ifconfig)
 TCPDUMP=$(/usr/bin/which tcpdump)
 VLAN=$(/usr/bin/dpkg -l | grep vlan | awk '{print $2}')
 #/ NETMANAGER=$(/etc/init.d/network-manager status | grep enabled | awk '{print $4}' | sed 's/)//g')
-C3D2CONFIG=$(cat /etc/network/interfaces | grep "c3d2-network-config-start" | awk '{print $4}')
-#/ BACKUPDATE=$(date +%Y-%m-%d-%H%M%S)
+C3D2CONFIG=$(grep "c3d2-network-config-start" /etc/network/interfaces | awk '{print $4}')
+BACKUPDATE0=$(date +%Y-%m-%d-%H%M%S)
 ### // stage2 ###
 #
 ### stage3 // ###
@@ -81,8 +81,8 @@ if [ X"$C3D2CONFIG" = X"c3d2-network-config-start" ]; then
    echo "" # dummy
 else
 #/ ### backup // ###
-#/ cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE
-#/ cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE
+#/ cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE0
+#/ cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE0
 #/ ### // backup ###
 #/ if [ X"$NETMANAGER" = X"enabled" ]; then
 #/ echo "Well, your current Setup use an Network-Manager, we don't like it"
@@ -113,7 +113,7 @@ case $response1 in
       echo "<--- --- --->"
       echo "write a new /etc/network/interfaces config file"
       echo "<--- --- --->"
-      cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE
+      cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE0
       touch /tmp/c3d2-networking_new_config.txt
 /bin/cat <<INTERFACELOOPBACK > /etc/network/interfaces
 ### ### ### c3d2-network-config-start // ### ### ###
@@ -128,8 +128,9 @@ INTERFACELOOPBACK
 #/ ETH1=$(dmesg | egrep "eth1" | egrep -v "ifname" | awk '{print $5}' | head -n 1 | sed 's/://g')
 #/ ETH2=$(dmesg | egrep "eth2" | egrep -v "ifname" | awk '{print $5}' | head -n 1 | sed 's/://g')
 #/ WLAN0=$(dmesg | egrep "wlan0" | egrep -v "ifname" | awk '{print $3}' | head -n 1 | sed 's/://g')
-ETH=$(lspci | grep "Ethernet" | wc -l)
-WLAN=$(lspci | grep "Wireless" | wc -l)
+#/ ETH=$(lspci | grep "Ethernet" | wc -l)
+ETH=$(lspci | grep -c "Ethernet")
+WLAN=$(lspci | grep -c "Wireless")
 if [ X"$ETH" = X"1" ]; then
 #/ echo "" # dummy
 #/ else
@@ -199,7 +200,7 @@ esac
 #/ else
 #/   echo "" # dummy
 fi
-if [ -z $PING ]; then
+if [ -z "$PING" ]; then
    echo "<--- --- --->"
    echo "need ping (iputils-ping)"
    echo "<--- --- --->"
@@ -210,7 +211,7 @@ if [ -z $PING ]; then
 #/ else
 #/ echo "" # dummy
 fi
-if [ -z $ARPING ]; then
+if [ -z "$ARPING" ]; then
    echo "<--- --- --->"
    echo "need arping"
    echo "<--- --- --->"
@@ -221,7 +222,7 @@ if [ -z $ARPING ]; then
 #/ else
 #/ echo "" # dummy
 fi
-if [ -z $ARPSCAN ]; then
+if [ -z "$ARPSCAN" ]; then
    echo "<--- --- --->"
    echo "need arp-scan"
    echo "<--- --- --->"
@@ -232,7 +233,7 @@ if [ -z $ARPSCAN ]; then
 #/ else
 #/ echo "" # dummy
 fi
-if [ -z $DIALOG ]; then
+if [ -z "$DIALOG" ]; then
    echo "<--- --- --->"
    echo "need dialog"
    echo "<--- --- --->"
@@ -243,7 +244,7 @@ if [ -z $DIALOG ]; then
 #/ else
 #/ echo "" # dummy
 fi
-#/ if [ -z $ZSH ]; then          # deprecated
+#/ if [ -z "$ZSH" ]; then        # deprecated
 #/    echo "<--- --- --->"       # deprecated
 #/    echo "need zsh shell"      # deprecated
 #/    echo "<--- --- --->"       # deprecated
@@ -253,7 +254,7 @@ fi
 #/ else                          # deprecated
 #/ echo "" # dummy               # deprecated
 #/ fi                            # deprecated
-if [ -z $IFCONFIG ]; then
+if [ -z "$IFCONFIG" ]; then
     echo "<--- --- --->"
     echo "need ifconfig"
     echo "<--- --- --->"
@@ -264,7 +265,7 @@ if [ -z $IFCONFIG ]; then
 #/ else
 #/ echo "" # dummy
 fi
-if [ -z $TCPDUMP ]; then
+if [ -z "$TCPDUMP" ]; then
     echo "<--- --- --->"
     echo "need tcpdump"
     echo "<--- --- --->"
@@ -277,7 +278,7 @@ if [ -z $TCPDUMP ]; then
 fi
 ### vlan // ###
 #
-if [ -z $VLAN ]; then
+if [ -z "$VLAN" ]; then
     echo "<--- --- --->"
     echo "need vlan"
     echo "<--- --- --->"
@@ -290,7 +291,7 @@ if [ -z $VLAN ]; then
 fi
 #/ sleep 1
 KMODVLAN=$(lsmod | grep 8021q | head -n1 | awk '{print $1}')
-if [ -z $KMODVLAN ]; then
+if [ -z "$KMODVLAN" ]; then
     echo "" # dummy
     echo "<--- --- --->"
     echo "need vlan kernel module"
@@ -302,7 +303,7 @@ if [ -z $KMODVLAN ]; then
 #/ echo "" # dummy
 fi
 KMODVLANPERSISTENT=$(cat /etc/modules | grep 8021q)
-if [ -z $KMODVLANPERSISTENT ]; then
+if [ -z "$KMODVLANPERSISTENT" ]; then
     echo "" # dummy
     echo "<--- --- --->"
     echo "need vlan kernel module on startup"
@@ -317,8 +318,8 @@ VLANMOD
 #/ else
 #/ echo "" # dummy
 fi
-ETHN=$(lspci | grep "Ethernet" | wc -l)
-WLANN=$(lspci | grep "Wireless" | wc -l)
+ETHN=$(lspci | grep -c "Ethernet")
+WLANN=$(lspci | grep -c "Wireless")
 if [ X"$ETHN" = X"1" ]; then
    echo "eth0" > /tmp/c3d2-networking_if_1.txt
 fi
@@ -334,7 +335,7 @@ fi
 if [ X"$WLANN" = X"1" ]; then
    WPAFILE="/etc/wpa_supplicant/wpa_supplicant.conf"
    if [ -e $WPAFILE ]; then
-      cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE
+      cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE0
       chmod 0600 /etc/wpa_supplicant/wpa_supplicant.conf_*
    else
       touch $WPAFILE
