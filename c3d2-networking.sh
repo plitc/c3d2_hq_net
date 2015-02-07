@@ -32,10 +32,7 @@
 
 
 ### stage0 // ###
-#/ DISTRO=$(uname -a)
-#/ DEBIAN=$(uname -a | awk '{print $6}')
 DEBIAN=$(grep "ID" /etc/os-release | egrep -v "VERSION" | sed 's/ID=//g')
-#/ DEBVERSION=$(cat /etc/debian_version | cut -c1)
 DEBVERSION=$(grep "VERSION_ID" /etc/os-release | sed 's/VERSION_ID=//g' | sed 's/"//g')
 MYNAME=$(whoami)
 ### // stage0 ###
@@ -50,18 +47,15 @@ PING=$(/usr/bin/which ping)
 ARPING=$(/usr/bin/which arping)
 ARPSCAN=$(/usr/bin/which arp-scan)
 DIALOG=$(/usr/bin/which dialog)
-#/ ZSH=$(/usr/bin/which zsh) # deprecated
 IFCONFIG=$(/usr/bin/which ifconfig)
 TCPDUMP=$(/usr/bin/which tcpdump)
 VLAN=$(/usr/bin/dpkg -l | grep vlan | awk '{print $2}')
-#/ NETMANAGER=$(/etc/init.d/network-manager status | grep enabled | awk '{print $4}' | sed 's/)//g')
 C3D2CONFIG=$(grep "c3d2-network-config-start" /etc/network/interfaces | awk '{print $4}')
 BACKUPDATE0=$(date +%Y-%m-%d-%H%M%S)
 ### // stage2 ###
 #
 ### stage3 // ###
 if [ "$MYNAME" = "root" ]; then
-#/ echo "" # dummy
    echo "<--- --- --->"
 else
    echo "<--- --- --->"
@@ -80,19 +74,6 @@ fi
 if [ X"$C3D2CONFIG" = X"c3d2-network-config-start" ]; then
    echo "" # dummy
 else
-#/ ### backup // ###
-#/ cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE0
-#/ cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE0
-#/ ### // backup ###
-#/ if [ X"$NETMANAGER" = X"enabled" ]; then
-#/ echo "Well, your current Setup use an Network-Manager, we don't like it"
-#/ echo "" # dummy
-#/ echo "run   /etc/init.d/network-manager stop; update-rc.d network-manager remove; /etc/init.d/networking stop   manually"
-#/ echo "" # dummy
-#/ echo "ERROR: network-manager is enabled"
-#/ sleep 1
-#/ exit 1
-#/ (
 dialog --title "disable Network-Manager" --backtitle "disable Network-Manager" --yesno "well, your current setup use an network-manager, we don't like that, can we disable it ? (press ESC to skip)" 8 95
 #
 response1=$?
@@ -113,7 +94,7 @@ case $response1 in
       echo "<--- --- --->"
       echo "write a new /etc/network/interfaces config file"
       echo "<--- --- --->"
-      cp -pf /etc/network/interfaces /etc/network/interfaces_$BACKUPDATE0
+      cp -pf /etc/network/interfaces /etc/network/interfaces_"$BACKUPDATE0"
       touch /tmp/c3d2-networking_new_config.txt
 /bin/cat <<INTERFACELOOPBACK > /etc/network/interfaces
 ### ### ### c3d2-network-config-start // ### ### ###
@@ -124,16 +105,9 @@ iface lo inet loopback
 ### // loopback ###
 #
 INTERFACELOOPBACK
-#/ ETH0=$(dmesg | egrep "eth0" | egrep -v "ifname" | awk '{print $5}' | head -n 1 | sed 's/://g')
-#/ ETH1=$(dmesg | egrep "eth1" | egrep -v "ifname" | awk '{print $5}' | head -n 1 | sed 's/://g')
-#/ ETH2=$(dmesg | egrep "eth2" | egrep -v "ifname" | awk '{print $5}' | head -n 1 | sed 's/://g')
-#/ WLAN0=$(dmesg | egrep "wlan0" | egrep -v "ifname" | awk '{print $3}' | head -n 1 | sed 's/://g')
-#/ ETH=$(lspci | grep "Ethernet" | wc -l)
 ETH=$(lspci | grep -c "Ethernet")
 WLAN=$(lspci | grep -c "Wireless")
 if [ X"$ETH" = X"1" ]; then
-#/ echo "" # dummy
-#/ else
 /bin/cat <<INTERFACEETH0 >> /etc/network/interfaces
 ### eth0 // ###
 auto eth0
@@ -144,8 +118,6 @@ iface eth0 inet6 auto
 INTERFACEETH0
 fi
 if [ X"$ETH" = X"2" ]; then
-#/ echo "" # dummy
-#/ else
 /bin/cat <<INTERFACEETH1 >> /etc/network/interfaces
 ### eth1 // ###
 auto eth1
@@ -156,8 +128,6 @@ iface eth1 inet6 auto
 INTERFACEETH1
 fi
 if [ X"$ETH" = X"3" ]; then
-#/ echo "" # dummy
-#/ else
 /bin/cat <<INTERFACEETH2 >> /etc/network/interfaces
 ### eth2 // ###
 auto eth2
@@ -168,8 +138,6 @@ iface eth2 inet6 auto
 INTERFACEETH2
 fi
 if [ X"$WLAN" = X"1" ]; then
-#/ echo "" # dummy
-#/ else
 /bin/cat <<INTERFACEWLAN0 >> /etc/network/interfaces
 ### wlan0 // ###
 auto wlan0
@@ -192,13 +160,8 @@ fi
       /bin/echo "" # dummy
       /bin/echo "" # dummy
       /bin/echo "[ESC] key pressed."
-#/ exit 0
 ;;
 esac
-#/ )
-#/ fi
-#/ else
-#/   echo "" # dummy
 fi
 if [ -z "$PING" ]; then
    echo "<--- --- --->"
@@ -206,10 +169,7 @@ if [ -z "$PING" ]; then
    echo "<--- --- --->"
    apt-get update
    apt-get install iputils-ping
-#/ cd -
    echo "<--- --- --->"
-#/ else
-#/ echo "" # dummy
 fi
 if [ -z "$ARPING" ]; then
    echo "<--- --- --->"
@@ -217,10 +177,7 @@ if [ -z "$ARPING" ]; then
    echo "<--- --- --->"
    apt-get update
    apt-get install arping
-#/ cd -
    echo "<--- --- --->"
-#/ else
-#/ echo "" # dummy
 fi
 if [ -z "$ARPSCAN" ]; then
    echo "<--- --- --->"
@@ -228,10 +185,7 @@ if [ -z "$ARPSCAN" ]; then
    echo "<--- --- --->"
    apt-get update
    apt-get install arp-scan
-#/ cd -
    echo "<--- --- --->"
-#/ else
-#/ echo "" # dummy
 fi
 if [ -z "$DIALOG" ]; then
    echo "<--- --- --->"
@@ -239,31 +193,15 @@ if [ -z "$DIALOG" ]; then
    echo "<--- --- --->"
    apt-get update
    apt-get install dialog
-#/ cd -
    echo "<--- --- --->"
-#/ else
-#/ echo "" # dummy
 fi
-#/ if [ -z "$ZSH" ]; then        # deprecated
-#/    echo "<--- --- --->"       # deprecated
-#/    echo "need zsh shell"      # deprecated
-#/    echo "<--- --- --->"       # deprecated
-#/    apt-get install -y zsh     # deprecated
-#/    cd -                       # deprecated
-#/    echo "<--- --- --->"       # deprecated
-#/ else                          # deprecated
-#/ echo "" # dummy               # deprecated
-#/ fi                            # deprecated
 if [ -z "$IFCONFIG" ]; then
     echo "<--- --- --->"
     echo "need ifconfig"
     echo "<--- --- --->"
     apt-get update
     apt-get install ifconfig
-#/  cd -
     echo "<--- --- --->"
-#/ else
-#/ echo "" # dummy
 fi
 if [ -z "$TCPDUMP" ]; then
     echo "<--- --- --->"
@@ -271,10 +209,7 @@ if [ -z "$TCPDUMP" ]; then
     echo "<--- --- --->"
     apt-get update
     apt-get install tcpdump
-#/  cd -
     echo "<--- --- --->"
-#/ else
-#/ echo "" # dummy
 fi
 ### vlan // ###
 #
@@ -284,10 +219,7 @@ if [ -z "$VLAN" ]; then
     echo "<--- --- --->"
     apt-get update
     apt-get install vlan
-#/  cd -
     echo "<--- --- --->"
-#/ else
-#/ echo "" # dummy
 fi
 #/ sleep 1
 KMODVLAN=$(lsmod | grep 8021q | head -n1 | awk '{print $1}')
@@ -297,10 +229,6 @@ if [ -z "$KMODVLAN" ]; then
     echo "need vlan kernel module"
     echo "<--- --- --->"
     /sbin/modprobe 8021q
-#/ cd -
-#/ echo "<--- --- --->"
-#/ else
-#/ echo "" # dummy
 fi
 KMODVLANPERSISTENT=$(grep "8021q" /etc/modules)
 if [ -z "$KMODVLANPERSISTENT" ]; then
@@ -313,10 +241,6 @@ if [ -z "$KMODVLANPERSISTENT" ]; then
 8021q
 ### // vlan ###
 VLANMOD
-#/ cd -
-#/ echo "<--- --- --->"
-#/ else
-#/ echo "" # dummy
 fi
 ETHN=$(lspci | grep -c "Ethernet")
 WLANN=$(lspci | grep -c "Wireless")
@@ -335,7 +259,7 @@ fi
 if [ X"$WLANN" = X"1" ]; then
    WPAFILE="/etc/wpa_supplicant/wpa_supplicant.conf"
    if [ -e $WPAFILE ]; then
-      cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_$BACKUPDATE0
+      cp -pf /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf_"$BACKUPDATE0"
       chmod 0600 /etc/wpa_supplicant/wpa_supplicant.conf_*
    else
       touch $WPAFILE
@@ -388,26 +312,13 @@ network={
 WPAC3D2INPUT
    fi
 fi
-#/ touch /tmp/c3d2-networking_if_1.txt
 IFLIST1="/tmp/c3d2-networking_if_1.txt"
 IFLIST2="/tmp/c3d2-networking_if_2.txt"
 IFLIST3="/tmp/c3d2-networking_if_3.txt"
-#/ IFLIST4="/tmp/c3d2-networking_if_4.txt"
-#/ touch $IFLIST1
-#/ dmesg | egrep "eth0|eth1|eth2" | egrep -v "ifname" | awk '{print $5}' | sort | uniq | sed 's/://g' > $IFLIST1
-#/ if [ -e $IFLIST1 ]; then
-#/    echo "" # dummy
-#/    echo "WARNING: can't analyse the network device information from dmesg"
-#/    sleep 2
-#/ exit 1
-#/ fi
 nl $IFLIST1 | sed 's/ //g' > $IFLIST2
-dialog --menu "Choose one VLAN RAW Interface:" 15 15 15 $(cat $IFLIST2) 2>$IFLIST3
-#/ GETIF=$(cat $IFLIST3 | cut -c1)
-#/ echo $GETIF
+dialog --menu "Choose one VLAN RAW Interface:" 15 15 15 "$(cat $IFLIST2)" 2>$IFLIST3
 ### fix2 // ###
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_if_2.txt /tmp/c3d2-networking_if_3.txt | awk '{print $2}' > /tmp/c3d2-networking_if_4.txt
-#/ /usr/bin/zsh -c "join /tmp/c3d2-networking_if_2.txt /tmp/c3d2-networking_if_3.txt > /tmp/c3d2-networking_if_4.txt"
 ### // fix2 ###
 GETIF=$(cat /tmp/c3d2-networking_if_4.txt)
 INTERFACES=$(grep "c3d2-networking" /etc/network/interfaces | head -n1 | awk '{print $2}')
@@ -454,10 +365,6 @@ iface $GETIF.105 inet manual
 #
 ### ### ### // c3d2-network-config-end ### ### ###
 INTERFACEVLAN
-#/cd -
-#/echo "<--- --- --->"
-#/else
-#/echo "" # dummy
 fi
 ### // vlan ###
 CONFIGCHECK="/tmp/c3d2-networking_new_config.txt"
@@ -503,11 +410,10 @@ rm -f /tmp/c3d2-networking*
 #
 IPV4DNSTEST="/tmp/c3d2-networking_ipv4dnstest1.txt"
 IPV4DNSTESTNEW="/tmp/c3d2-networking_ipv4dnstest2.txt"
-#/ IPV4DNSTESTVALUE="/tmp/c3d2-networking_ipv4dnstest3.txt"
 touch $IPV4DNSTEST
 /bin/chmod 0600 $IPV4DNSTEST
 /bin/echo "dnscache.berlin.ccc.de" > $IPV4DNSTEST
-dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --inputbox "Enter a domain for analysis: (for example dnscache.berlin.ccc.de/213.73.91.35)" 8 85 $(cat $IPV4DNSTEST) 2>$IPV4DNSTESTNEW
+dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --inputbox "Enter a domain for analysis: (for example dnscache.berlin.ccc.de/213.73.91.35)" 8 85 "$(cat $IPV4DNSTEST)" 2>$IPV4DNSTESTNEW
 IPV4DNSTESTVALUE=$(sed 's/#//g' /tmp/c3d2-networking_ipv4dnstest2.txt | sed 's/%//g' | sed 's/ //g')
 /bin/ping -q -c5 "$IPV4DNSTESTVALUE" > /dev/null
 if [ $? -eq 0 ]
@@ -532,7 +438,6 @@ case $response3 in
       exit 0
 ;;
 esac
-#/   exit 0
 else
       dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --msgbox "ERROR: can't ping!" 0 0
       /bin/echo "" # dummy
@@ -540,22 +445,19 @@ else
       /bin/echo "ERROR: server isn't responsive"
       /bin/sleep 2
    /bin/rm -f /tmp/c3d2-networking_ipv4dnstest*
-#/ exit 1
       dialog --title "IPv4 DNS Test results" --backtitle "IPv4 DNS Test results" --msgbox "ERROR: your DNS looks broken, please check your /etc/resolv.conf & /etc/nsswitch.conf" 5 90
 IPV4IPTEST="/tmp/c3d2-networking_ipv4iptest1.txt"
 IPV4IPTESTNEW="/tmp/c3d2-networking_ipv4iptest2.txt"
-#/ IPV4IPTESTVALUE="/tmp/c3d2-networking_ipv4iptest3.txt"
 touch $IPV4IPTEST
 /bin/chmod 0600 $IPV4IPTEST
 /bin/echo "213.73.91.35" > $IPV4IPTEST
-dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --inputbox "Enter a IP for analysis: (for example 213.73.91.35/dnscache.berlin.ccc.de)" 8 85 $(cat $IPV4IPTEST) 2>$IPV4IPTESTNEW
+dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --inputbox "Enter a IP for analysis: (for example 213.73.91.35/dnscache.berlin.ccc.de)" 8 85 "$(cat $IPV4IPTEST)" 2>$IPV4IPTESTNEW
 IPV4IPTESTVALUE=$(sed 's/#//g' /tmp/c3d2-networking_ipv4iptest2.txt | sed 's/%//g' | sed 's/ //g')
 /bin/ping -q -c5 "$IPV4IPTESTVALUE" > /dev/null
 if [ $? -eq 0 ]
 then
    dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --msgbox "It works!" 0 0
    /bin/rm -f /tmp/c3d2-networking_ipv4iptest*
-#/ exit 0
 else
    dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --msgbox "ERROR: can't ping!" 0 0
    /bin/echo "" # dummy
@@ -564,12 +466,8 @@ else
    /bin/sleep 2
    /bin/rm -f /tmp/c3d2-networking_ipv4iptest*
 dialog --title "IPv4 is broken" --backtitle "IPv4 is broken" --msgbox "ERROR: sorry your dns & routing is totally broken :(" 5 60
-#/ exit 1
 fi
-#/ /bin/rm -f /tmp/c3d2-networking_ipv4iptest*
 fi
-#/ /bin/rm -f /tmp/c3d2-networking_ipv4dnstest*
-#
 IPCHECK=$(ip a | grep "inet" | egrep -v "127.0.0.1" | awk '{print $2}' | head -n 1)
 if [ -z "$IPCHECK" ]; then
    echo "" # FUU
@@ -683,9 +581,6 @@ touch $GETIPV4MENUCIPFUNC
 
 ### stage6 // ###
 ### show if list // ###
-#/ /sbin/ifconfig -a | grep "Link" | egrep -v "lo" | awk '{print $1}' > /tmp/c3d2-networking_ifconfig2.txt
-#/ IFCONFIG2="/tmp/c3d2-networking_ifconfig2.txt"
-#/ dialog --backtitle "show available interfaces" --textbox "$IFCONFIG2" 0 0
 dialog --radiolist "Select on Interface:" 15 75 12 \
    1 "eth0       (regular environment - untagged / vlan forbidden)" on\
    2 "wlan0      (regular environment)" off\
@@ -715,17 +610,6 @@ GETIPV4IFVALUE=$(cat /tmp/c3d2-networking_ifconfig6.txt)
 ### // show if list ###
 GETIPV4IF="/tmp/get_ipv4_address_if.log"
 touch $GETIPV4IF
-#/ dialog --inputbox "Enter the interface name:" 8 40 2>$GETIPV4IF
-#/ GETIPV4IFVALUE=$(cat $GETIPV4IF | sed 's/#//g' | sed 's/%//g')
-#/ GETIPV4IFCHECK=$(ifconfig -a | grep "Link" | egrep -v "lo" | awk '{print $1}' | sed 's/://g' | grep $GETIPV4IFVALUE)
-#/ if [ -z "$GETIPV4IFCHECK" ]; then
-#/    echo "" # dummy
-#/    echo "" # dummy
-#/    echo "ERROR: interface doesn't exist or isn't showing up"
-#/    exit 1
-#/ else
-#/ echo "" # dummy
-#/ fi
 /sbin/ifconfig "$GETIPV4IFVALUE" up
 ### // stage6 ###
 
@@ -738,11 +622,6 @@ killall -q dhclient
 
 ### iw list // ###
 if [ X"$GETIPV4IFVALUE" = X"wlan0" ]; then
-#/ echo "" # dummy
-#/ else
-#/ /bin/cat /etc/wpa_supplicant/wpa_supplicant.conf | grep 'ssid' | egrep -v "#" | sed 's/"//g' | awk '{print $1,$2,$3,$4,$5}' > /tmp/get_ipv4_address_iwlist1.txt
-#/ nl /tmp/get_ipv4_address_iwlist1.txt | awk '{print $1,$2,$3,$4,$5}' > /tmp/get_ipv4_address_iwlist2.txt
-#/ GETIPV4IWLIST=$(cat /tmp/get_ipv4_address_iwlist2.txt)
 grep 'ssid' /etc/wpa_supplicant/wpa_supplicant.conf | egrep -v "#" | sed 's/ssid=//g' > /tmp/get_ipv4_address_iwlist1.txt
 nl /tmp/get_ipv4_address_iwlist1.txt > /tmp/get_ipv4_address_iwlist2.txt
 /bin/sed 's/$/ off/' /tmp/get_ipv4_address_iwlist2.txt > /tmp/get_ipv4_address_iwlist3.txt
@@ -751,24 +630,12 @@ GETIPV4IWLIST="/tmp/get_ipv4_address_iwlist4.txt"
 dialog --radiolist "Choose one of your configured wireless network:" 45 45 40 --file $GETIPV4IWLIST 2>/tmp/get_ipv4_address_iwlist5.txt
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_iwlist4.txt /tmp/get_ipv4_address_iwlist5.txt | awk '{print $2}' | sed 's/"//g' > /tmp/get_ipv4_address_iwlist6.txt
 ### run // ###
-#/ killall -q dhclient
-#/ ip addr flush dev wlan0
-#/ GETIPV4IWLISTIF=$(cat /tmp/get_ipv4_address_iwlist6.txt)
-#/ iwconfig wlan0 essid "$GETIPV4IWLISTIF"
-#/ ifconfig wlan0 down
-#/ sleep 1
-#/ ifconfig wlan0 up
-#/ sleep 2
-#
 killall -q dhclient
 killall -q wpa_supplicant
 GETIPV4IWLISTIF=$(cat /tmp/get_ipv4_address_iwlist6.txt)
 /sbin/ip addr flush dev wlan0
 /usr/sbin/service wpa_supplicant start
-#/ /sbin/ifconfig wlan0 down
-#/ /sbin/ip addr flush dev wlan0
 sleep 1
-#/ /sbin/ifconfig wlan0 up
 /bin/echo "" # dummy
 /bin/echo "" # dummy
 /bin/echo "Access Point: try to establish an association with $GETIPV4IWLISTIF"
@@ -777,16 +644,6 @@ sleep 1
 ### // run ###
 fi
 ### // iw list ###
-
-   #/ echo "<--- tcpdump preview // --->"
-   #/ echo ""
-   #/ /usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 25 | grep --color 0x0800
-   #/ echo ""
-   #/ echo "<--- // tcpdump preview --->"
-   #/ echo ""
-   #/ (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | grep "0x0800" | awk '{print $10}' 2>&1 > $GETIPV4) &&
-   #/ (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | grep "0x0806" | awk '{print $12}' 2>&1 >> $GETIPV4) &&
-   #/ echo ""
 
 /bin/echo "" > $GETIPV4
 /bin/echo "" > $GETIPV4Z
@@ -800,13 +657,7 @@ echo "XXX"
 echo "discovering the local network: ($TCPDUMP1 percent)"
 echo "XXX"
 ### run // ###
-   #/ /bin/echo "" > $GETIPV4
-   #/ /bin/echo "" > $GETIPV4Z
-   #/ ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5 | egrep "0x0800|0x0806") >> $GETIPV4 2>&1) &
 ( (/usr/sbin/tcpdump -e -n -i "$GETIPV4IFVALUE" -c 5) >> $GETIPV4Z 2>&1) &
-   #/ sleep 1
-   #/ ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 2 | grep "0x0806" | awk '{print $12}') >> $GETIPV4 2>&1) &&
-   #/ /bin/cat $GETIPV4Z | egrep "0x0800|0x0806" >> $GETIPV4
 ### // run ###
 TCPDUMP1=$(expr $TCPDUMP1 + 5)
 sleep 1
@@ -849,34 +700,33 @@ if [ "$CLASSCTEST" = 0 ]; then
    CLASSDN42ANET=$(grep "172.22" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "172.22" | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
    # /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSDN42ANET"
    /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSDN42ANET" > $GETIPV4ARPDIG
-   CLASSDN42APRE=$(cat $GETIPV4 | grep "172.22" | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
-   GETIPV4CURRDN42A=$(cat $GETIPV4ARPDIG | grep "172.22" | awk '{print $1}' | sort)
-   netdn42a=$CLASSDN42APRE; idn42a=1; GETIPV4FULLDN42A=`while [ $idn42a -lt 255 ]; do echo $netdn42a.$idn42a; idn42a=$(($idn42a+1)); done`
-   echo $GETIPV4CURRDN42A > $GETIPV4CURRDN42ALIST
-   echo $GETIPV4FULLDN42A > $GETIPV4FULLDN42ALIST
+   CLASSDN42APRE=$(grep "172.22" $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
+   GETIPV4CURRDN42A=$(grep "172.22" $GETIPV4ARPDIG | awk '{print $1}' | sort)
+   netdn42a=$CLASSDN42APRE; idn42a=1; GETIPV4FULLDN42A=$(while [ $idn42a -lt 255 ]; do echo $netdn42a.$idn42a; idn42a=$(($idn42a+1)); done)
+   echo "$GETIPV4CURRDN42A" > $GETIPV4CURRDN42ALIST
+   echo "$GETIPV4FULLDN42A" > $GETIPV4FULLDN42ALIST
    tr ' ' '\n' < $GETIPV4CURRDN42ALIST > $GETIPV4CURRDN42ALISTL
    tr ' ' '\n' < $GETIPV4FULLDN42ALIST > $GETIPV4FULLDN42ALISTL
    sort -n $GETIPV4CURRDN42ALISTL $GETIPV4FULLDN42ALISTL | uniq -u > $GETIPV4SORTDN42ALISTL
    nl $GETIPV4SORTDN42ALISTL | sed 's/ //g' > $GETIPV4MENUDN42A
-   dialog --menu "Choose one (free) IP:" 45 45 40 `cat $GETIPV4MENUDN42A` 2>$GETIPV4MENUDN42ALIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 $(cat "$GETIPV4MENUDN42A") 2>$GETIPV4MENUDN42ALIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menudn42a.log > /tmp/get_ipv4_address_menudn42a_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menudn42a_fix.log /tmp/get_ipv4_address_menudn42alist.log | awk '{print $2}' > /tmp/get_ipv4_address_menudn42a_ip.log
 ### // fix ###
-#/ /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menudn42a_fix.log /tmp/get_ipv4_address_menudn42alist.log > /tmp/get_ipv4_address_menudn42a_ip.log"
    SETDN42AIP=$(cat /tmp/get_ipv4_address_menudn42a_ip.log)
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUDN42AIPFUNC
-   GETIPV4MENUDN42AIPFUNCN=$(cat $GETIPV4MENUDN42AIPFUNC | sed 's/#//g' | sed 's/%//g')
-   if [ $GETIPV4MENUDN42AIPFUNCN = 1 ]; then
-      ip addr flush dev $GETIPV4IFVALUE
-      ip addr add $SETDN42AIP/24 dev $GETIPV4IFVALUE
+   GETIPV4MENUDN42AIPFUNCN=$(sed 's/#//g' $GETIPV4MENUDN42AIPFUNC | sed 's/%//g')
+   if [ "$GETIPV4MENUDN42AIPFUNCN" = 1 ]; then
+      ip addr flush dev "$GETIPV4IFVALUE"
+      ip addr add "$SETDN42AIP"/24 dev "$GETIPV4IFVALUE"
    else
-      ip addr add $SETDN42AIP/24 dev $GETIPV4IFVALUE
+      ip addr add "$SETDN42AIP"/24 dev "$GETIPV4IFVALUE"
    fi
 ### ### ### ### ### ### ### ### ###
-NEWDN42AIP=$(ip addr show $GETIPV4IFVALUE | grep --color $SETDN42AIP)
+NEWDN42AIP=$(ip addr show "$GETIPV4IFVALUE" | grep --color "$SETDN42AIP")
 echo ""
-ip addr show $GETIPV4IFVALUE
+ip addr show "$GETIPV4IFVALUE"
 echo ""
 echo "Your new IP: $NEWDN42AIP"
 sleep 4
@@ -889,9 +739,9 @@ sleep 4
       else
          echo 'looks like ... class A network'
 # <--- --- --- --- --- --- --- --- ---//
-   CLASSANET=$(cat $GETIPV4 | grep "10." | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "10." | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
+   CLASSANET=$(grep "10." $GETIPV4 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep "10." | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}' | xargs -L1 -I {} echo {}.0/24)
    # /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSANET  
-   /usr/bin/arp-scan -I $GETIPV4IFVALUE $CLASSANET > $GETIPV4ARPDIG
+   /usr/bin/arp-scan -I "$GETIPV4IFVALUE" "$CLASSANET" > $GETIPV4ARPDIG
    CLASSAPRE=$(cat $GETIPV4 | grep "10." | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "0.0.0.0" | sort | uniq | head -n 1 | awk -F. '{print $1"."$2"."$3}')
    GETIPV4CURRA=$(cat $GETIPV4ARPDIG | grep "10." | awk '{print $1}' | sort)
    neta1=$CLASSAPRE; ia1=1; GETIPV4FULLA=`while [ $ia1 -lt 255 ]; do echo $neta1.$ia1; ia1=$(($ia1+1)); done`
@@ -906,7 +756,6 @@ sleep 4
 sort /tmp/get_ipv4_address_menua.log > /tmp/get_ipv4_address_menua_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menua_fix.log /tmp/get_ipv4_address_menualist.log | awk '{print $2}' > /tmp/get_ipv4_address_menua_ip.log
 ### // fix ###
-#/ /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menua_fix.log /tmp/get_ipv4_address_menualist.log > /tmp/get_ipv4_address_menua_ip.log"
    SETAIP=$(cat /tmp/get_ipv4_address_menua_ip.log)
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUAIPFUNC
    GETIPV4MENUAIPFUNCN=$(cat $GETIPV4MENUAIPFUNC | sed 's/#//g' | sed 's/%//g')
@@ -947,7 +796,6 @@ sleep 4
 sort /tmp/get_ipv4_address_menub.log > /tmp/get_ipv4_address_menub_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menub_fix.log /tmp/get_ipv4_address_menublist.log | awk '{print $2}' > /tmp/get_ipv4_address_menub_ip.log
 ### // fix ###
-#/ /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menub_fix.log /tmp/get_ipv4_address_menublist.log > /tmp/get_ipv4_address_menub_ip.log"
    SETBIP=$(cat /tmp/get_ipv4_address_menub_ip.log)
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUBIPFUNC
    GETIPV4MENUBIPFUNCN=$(cat $GETIPV4MENUBIPFUNC | sed 's/#//g' | sed 's/%//g')
@@ -988,7 +836,6 @@ else
 sort /tmp/get_ipv4_address_menuc.log > /tmp/get_ipv4_address_menuc_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menuc_fix.log /tmp/get_ipv4_address_menuclist.log | awk '{print $2}' > /tmp/get_ipv4_address_menuc_ip.log
 ### // fix ###
-#/ /usr/bin/zsh -c "join --nocheck-order /tmp/get_ipv4_address_menuc_fix.log /tmp/get_ipv4_address_menuclist.log > /tmp/get_ipv4_address_menuc_ip.log"
    SETCIP=$(cat /tmp/get_ipv4_address_menuc_ip.log)
    dialog --menu "IP function:" 10 10 10 1 new 2 alias 2>$GETIPV4MENUCIPFUNC
    GETIPV4MENUCIPFUNCN=$(cat $GETIPV4MENUCIPFUNC | sed 's/#//g' | sed 's/%//g')
@@ -1015,16 +862,6 @@ fi
 
 # <--- --- --- --- ROUTER // --- --- --- ---//
 
-   #/ echo ""
-   #/ echo "<--- ROUTER tcpdump preview // --->"
-   #/ echo ""
-   #/ /usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 55 | grep --color "OSPFv2"
-   #/ echo ""
-   #/ echo "<--- // ROUTER tcpdump preview --->"
-   #/ echo ""
-   #/ (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 55 | grep --color "OSPFv2" | awk '{print $10}' | sort | uniq 2>&1 > $GETIPV4ROUTER) &&
-   #/ echo ""
-
 /bin/echo "" > $GETIPV4ROUTER
 
 TCPDUMP2=10
@@ -1036,9 +873,7 @@ echo "XXX"
 echo "discovering local router: ($TCPDUMP2 percent)"   
 echo "XXX"
 ### run // ###
-   #/ /bin/echo "" > $GETIPV4ROUTER
 ( (/usr/sbin/tcpdump -e -n -i $GETIPV4IFVALUE -c 5) 2>&1 >> $GETIPV4ROUTER) &
-   #/ /bin/cat $GETIPV4ROUTER | grep --color "OSPFv2" | awk '{print $10}' | sort | uniq > $GETIPV4ROUTER2
 ### // run ###
 TCPDUMP2=`expr $TCPDUMP2 + 5`
 sleep 1
@@ -1049,7 +884,6 @@ done
    dialog --menu "Choose one default Router:" 10 30 40 `cat $GETIPV4ROUTERLIST` 2>$GETIPV4ROUTERLISTMENU
 ### fix4 // ###
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_router_list.log /tmp/get_ipv4_router_list_menu.log > /tmp/get_ipv4_router_list_menu_choosed.log
-#/   /usr/bin/zsh -c "join /tmp/get_ipv4_router_list.log /tmp/get_ipv4_router_list_menu.log > /tmp/get_ipv4_router_list_menu_choosed.log"
 ### // fix4 ###
    SETROUTERIP=$(cat /tmp/get_ipv4_router_list_menu_choosed.log | awk '{print $2}')
 if [ -z $SETROUTERIP ]; then
@@ -1095,63 +929,63 @@ cat << DNSEOF > /tmp/get_ipv4_resolv.conf
 DNSEOF
 
 GETIPV4DNSLISTCHECK1=$(grep "1" $GETIPV4DNSLIST | sed 's/#//g' | sed 's/%//g')
-if [ -z $GETIPV4DNSLISTCHECK1 ]; then
+if [ -z "$GETIPV4DNSLISTCHECK1" ]; then
    echo "" # dummy
    else
    echo "nameserver 46.4.163.36     # (plitc-public-dns-a.de.plitc.eu / germany only)" >> /tmp/get_ipv4_resolv.conf
 fi
 
 GETIPV4DNSLISTCHECK2=$(grep "2" $GETIPV4DNSLIST | sed 's/#//g' | sed 's/%//g')
-if [ -z $GETIPV4DNSLISTCHECK2 ]; then
+if [ -z "$GETIPV4DNSLISTCHECK2" ]; then
    echo "" # dummy
    else
    echo "nameserver 46.4.163.37     # (plitc-public-dns-b.de.plitc.eu / germany only)" >> /tmp/get_ipv4_resolv.conf
 fi
 
 GETIPV4DNSLISTCHECK3=$(grep "3" $GETIPV4DNSLIST | sed 's/#//g' | sed 's/%//g')
-if [ -z $GETIPV4DNSLISTCHECK3 ]; then
+if [ -z "$GETIPV4DNSLISTCHECK3" ]; then
    echo "" # dummy
    else
    echo "nameserver 46.4.163.38     # (plitc-public-dns-c.de.plitc.eu / germany only)" >> /tmp/get_ipv4_resolv.conf
 fi
 
 GETIPV4DNSLISTCHECK4=$(grep "4" $GETIPV4DNSLIST | sed 's/#//g' | sed 's/%//g')
-if [ -z $GETIPV4DNSLISTCHECK4 ]; then
+if [ -z "$GETIPV4DNSLISTCHECK4" ]; then
    echo "" # dummy
    else
    echo "nameserver 213.73.91.35    # (dnscache.berlin.ccc.de)" >> /tmp/get_ipv4_resolv.conf
 fi
 
 GETIPV4DNSLISTCHECK5=$(grep "5" $GETIPV4DNSLIST | sed 's/#//g' | sed 's/%//g')
-if [ -z $GETIPV4DNSLISTCHECK5 ]; then
+if [ -z "$GETIPV4DNSLISTCHECK5" ]; then
    echo "" # dummy
    else
    echo "nameserver 74.82.42.42     # (ordns.he.net)" >> /tmp/get_ipv4_resolv.conf
 fi
 
 GETIPV4DNSLISTCHECK6=$(grep "6" $GETIPV4DNSLIST | sed 's/#//g' | sed 's/%//g')
-if [ -z $GETIPV4DNSLISTCHECK6 ]; then
+if [ -z "$GETIPV4DNSLISTCHECK6" ]; then
    echo "" # dummy
    else
    echo "nameserver 208.67.222.222  # (resolver1.opendns.com)" >> /tmp/get_ipv4_resolv.conf
 fi
 
 GETIPV4DNSLISTCHECK7=$(grep "7" $GETIPV4DNSLIST | sed 's/#//g' | sed 's/%//g')
-if [ -z $GETIPV4DNSLISTCHECK7 ]; then
+if [ -z "$GETIPV4DNSLISTCHECK7" ]; then
    echo "" # dummy
    else
    echo "nameserver 208.67.220.220  # (resolver2.opendns.com)" >> /tmp/get_ipv4_resolv.conf
 fi
 
 GETIPV4DNSLISTCHECK8=$(grep "8" $GETIPV4DNSLIST | sed 's/#//g' | sed 's/%//g')
-if [ -z $GETIPV4DNSLISTCHECK8 ]; then
+if [ -z "$GETIPV4DNSLISTCHECK8" ]; then
    echo "" # dummy
    else
    echo "nameserver 8.8.8.8         # (google-public-dns-a.google.com)" >> /tmp/get_ipv4_resolv.conf
 fi
 
 GETIPV4DNSLISTCHECK9=$(grep "9" $GETIPV4DNSLIST | sed 's/#//g' | sed 's/%//g')
-if [ -z $GETIPV4DNSLISTCHECK9 ]; then
+if [ -z "$GETIPV4DNSLISTCHECK9" ]; then
    echo "" # dummy
    else
    echo "nameserver 8.8.4.4         # (google-public-dns-b.google.com)" >> /tmp/get_ipv4_resolv.conf
@@ -1269,16 +1103,13 @@ else
    exit 1
 fi
 #
-if [ -z $DIALOG ]; then
+if [ -z "$DIALOG" ]; then
    echo "<--- --- --->"
    echo "need dialog"
    echo "<--- --- --->"
    apt-get update
    apt-get install dialog
-#/ cd -
    echo "<--- --- --->"
-#/ else
-#/ echo "" # dummy
 fi
 ### stage4 // ###
 rm -f /tmp/c3d2-networking_storage*
@@ -1298,7 +1129,6 @@ STORAGEPROTO=$(cat /tmp/c3d2-networking_storage_2.txt)
 #
 ### // samba //
 if [ X"$STORAGEPROTO" = X"1" ]; then
-   #/ /bin/echo "" # dummy
 STORAGESMB=$(dpkg -l | grep cifs-utils | awk '{print $2}')
 if [ -z $STORAGESMB ]; then
    echo "<--- --- --->"
@@ -1314,10 +1144,7 @@ if [ -z $STORAGESMB ]; then
    systemctl stop nmbd
    systemctl disable smbd
    systemctl disable nmbd
-   #/ cd -
    echo "<--- --- --->"
-   #/ else
-   #/ echo "" # dummy
 fi
 ifconfig | grep 'Link' | awk '{print $1}' | egrep -v "lo" > /tmp/c3d2-networking_storage_if_1.txt
 nl /tmp/c3d2-networking_storage_if_1.txt > /tmp/c3d2-networking_storage_if_2.txt
@@ -1338,38 +1165,21 @@ if [ -z $STORAGESMBSRVIFIP ]; then
    echo "ERROR: can't catch the interface ipv4 address"
    exit 1
 fi
-#
-   #/ echo "" # dummy
-   #/ echo "" # dummy
-   #/ echo "<--- --- --->"
-   #/ echo "set static ipv4 route to the storage server"
-   #/ echo "<--- --- --->"
-   #/ route del -host $STORAGESMBSRVIFIP.10 > /dev/null 2>&1
-   #/ route add -host $STORAGESMBSRVIFIP.10 dev $STORAGESMBSRVIFCHOOSE
-   #/ sleep 2
-#
-#/ STORAGESMBSRV=$STORAGESMBSRVIFIP.10
 STORAGESMBSRVPORT=445
 STORAGESMBSRVTIMEOUT=1
-#
+
 if nc -w $STORAGESMBSRVTIMEOUT -t $STORAGESMBSRVIFIP.10 $STORAGESMBSRVPORT; then
    echo "" # dummy
    echo "" # dummy
    echo "INFO: I was able to connect to $STORAGESMBSRVIFIP.10:${STORAGESMBSRVPORT}"
    sleep 2
-   #/ echo "" # dummy
-   #/ echo "<--- --- --->"
-   #/ echo "try to mount the storage"
-   #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
    mkdir -p /c3d2-storage-crypto
 STORAGESMBSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
 if [ X"$STORAGESMBSRVSTATUS" = X"1" ]; then
-   #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
    sleep 2
-   #/ exit 1
 ###
 dialog --title "HQ Storage Server - umount" --backtitle "HQ Storage Server - umount" --yesno "Do you want umount the current storage? (press ESC to skip)" 5 66
 storagesmb2=$?
@@ -1380,7 +1190,6 @@ case $storagesmb2 in
    1)
       /bin/echo "" # dummy
       /bin/echo "" # dummy
-      #/ /bin/echo "ERROR:"
       exit 0
 ;;
    255)
@@ -1434,11 +1243,7 @@ if [ -z $STORAGENFS ]; then
    sleep 2
    apt-get install nfs-common portmap
    sleep 2
-   #
-   #/ cd -
    echo "<--- --- --->"
-   #/ else
-   #/ echo "" # dummy
 fi
 ifconfig | grep 'Link' | awk '{print $1}' | egrep -v "lo" > /tmp/c3d2-networking_storage_if_1.txt
 nl /tmp/c3d2-networking_storage_if_1.txt > /tmp/c3d2-networking_storage_if_2.txt
@@ -1460,16 +1265,6 @@ if [ -z $STORAGENFSSRVIFIP ]; then
    exit 1
 fi
 #
-   #/ echo "" # dummy
-   #/ echo "" # dummy
-   #/ echo "<--- --- --->"
-   #/ echo "set static ipv4 route to the storage server"
-   #/ echo "<--- --- --->"
-   #/ route del -host $STORAGENFSSRVIFIP.10 > /dev/null 2>&1
-   #/ route add -host $STORAGENFSSRVIFIP.10 dev $STORAGENFSSRVIFCHOOSE
-   #/ sleep 2
-#
-#/ STORAGENFSSRV=$STORAGENFSSRVIFIP.10
 STORAGENFSSRVPORT=2049
 STORAGENFSSRVTIMEOUT=1
 #
@@ -1478,18 +1273,12 @@ if nc -w $STORAGENFSSRVTIMEOUT -t $STORAGENFSSRVIFIP.10 $STORAGENFSSRVPORT; then
    echo "" # dummy
    echo "INFO: I was able to connect to $STORAGENFSSRVIFIP.10:${STORAGENFSSRVPORT}"
    sleep 2
-   #/ echo "" # dummy
-   #/ echo "<--- --- --->"
-   #/ echo "try to mount the storage"
-   #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
 STORAGENFSSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
 if [ X"$STORAGENFSSRVSTATUS" = X"1" ]; then
-   #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
    sleep 2
-   #/ exit 1
 ###
 dialog --title "HQ Storage Server - umount" --backtitle "HQ Storage Server - umount" --yesno "Do you want umount the current storage? (press ESC to skip)" 5 66
 storagenfs2=$?
@@ -1553,11 +1342,7 @@ if [ -z $STORAGEWEB ]; then
    sleep 2
    apt-get install davfs2
    sleep 2
-   #
-   #/ cd -
    echo "<--- --- --->"
-   #/ else
-   #/ echo "" # dummy
 fi
 ifconfig | grep 'Link' | awk '{print $1}' | egrep -v "lo" > /tmp/c3d2-networking_storage_if_1.txt
 nl /tmp/c3d2-networking_storage_if_1.txt > /tmp/c3d2-networking_storage_if_2.txt
@@ -1579,15 +1364,6 @@ if [ -z $STORAGEWEBSRVIFIP ]; then
    exit 1
 fi
 #
-   #/ echo "" # dummy
-   #/ echo "" # dummy
-   #/ echo "<--- --- --->"
-   #/ echo "set static ipv4 route to the storage server"
-   #/ echo "<--- --- --->"
-   #/ route del -host $STORAGEWEBSRVIFIP.10 > /dev/null 2>&1
-   #/ route add -host $STORAGEWEBSRVIFIP.10 dev $STORAGEWEBSRVIFCHOOSE
-   #/ sleep 2
-#
 #/ STORAGEWEBSRV=$STORAGEWEBSRVIFIP.10
 STORAGEWEBSRVPORT=8080
 STORAGEWEBSRVTIMEOUT=1
@@ -1597,10 +1373,6 @@ if nc -w $STORAGEWEBSRVTIMEOUT -t $STORAGEWEBSRVIFIP.10 $STORAGEWEBSRVPORT; then
    echo "" # dummy
    echo "INFO: I was able to connect to $STORAGEWEBSRVIFIP.10:${STORAGEWEBSRVPORT}"
    sleep 2
-   #/ echo "" # dummy
-   #/ echo "<--- --- --->"
-   #/ echo "try to mount the storage"
-   #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
 STORAGEWEBSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
@@ -1674,11 +1446,7 @@ if [ -z $STORAGESSHFS ]; then
    sleep 2
    apt-get install sshfs
    sleep 2
-   #
-   #/ cd -
    echo "<--- --- --->"
-   #/ else
-   #/ echo "" # dummy
 fi
 ifconfig | grep 'Link' | awk '{print $1}' | egrep -v "lo" > /tmp/c3d2-networking_storage_if_1.txt
 nl /tmp/c3d2-networking_storage_if_1.txt > /tmp/c3d2-networking_storage_if_2.txt
@@ -1699,17 +1467,6 @@ if [ -z $STORAGESSHFSSRVIFIP ]; then
    echo "ERROR: can't catch the interface ipv4 address"
    exit 1
 fi
-#
-   #/ echo "" # dummy
-   #/ echo "" # dummy
-   #/ echo "<--- --- --->"
-   #/ echo "set static ipv4 route to the storage server"
-   #/ echo "<--- --- --->"
-   #/ route del -host $STORAGESSHFSSRVIFIP.10 > /dev/null 2>&1
-   #/ route add -host $STORAGESSHFSSRVIFIP.10 dev $STORAGESSHFSSRVIFCHOOSE
-   #/ sleep 2
-#
-#/ STORAGESSHFSSRV=$STORAGESSHFSSRVIFIP.10
 STORAGESSHFSSRVPORT=22
 STORAGESSHFSSRVTIMEOUT=1
 #
@@ -1720,10 +1477,6 @@ if nc -w $STORAGESSHFSSRVTIMEOUT -t $STORAGESSHFSSRVIFIP.10 $STORAGESSHFSSRVPORT
    echo "" # dummy
    echo "INFO: I was able to connect to $STORAGESSHFSSRVIFIP.10:${STORAGESSHFSSRVPORT}"
    sleep 2
-   #/ echo "" # dummy
-   #/ echo "<--- --- --->"
-   #/ echo "try to mount the storage"
-   #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
 STORAGESSHFSSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
@@ -1771,7 +1524,6 @@ fi
    1)
       /bin/echo "" # dummy
       /bin/echo "" # dummy
-      #/ /bin/echo "ERROR:"
       exit 0
 ;;
    255)
@@ -1797,11 +1549,7 @@ if [ -z $STORAGEFTP ]; then
    sleep 2
    apt-get install curlftpfs
    sleep 2
-   #
-   #/ cd -
    echo "<--- --- --->"
-   #/ else
-   #/ echo "" # dummy
 fi
 ifconfig | grep 'Link' | awk '{print $1}' | egrep -v "lo" > /tmp/c3d2-networking_storage_if_1.txt
 nl /tmp/c3d2-networking_storage_if_1.txt > /tmp/c3d2-networking_storage_if_2.txt
@@ -1823,16 +1571,6 @@ if [ -z $STORAGEFTPSRVIFIP ]; then
    exit 1
 fi
 #
-   #/ echo "" # dummy
-   #/ echo "" # dummy
-   #/ echo "<--- --- --->"
-   #/ echo "set static ipv4 route to the storage server"
-   #/ echo "<--- --- --->"
-   #/ route del -host $STORAGEFTPSRVIFIP.10 > /dev/null 2>&1
-   #/ route add -host $STORAGEFTPSRVIFIP.10 dev $STORAGEFTPSRVIFCHOOSE
-   #/ sleep 2
-#
-#/ STORAGEFTPSRV=$STORAGEFTPSRVIFIP.10
 STORAGEFTPSRVPORT=21
 STORAGEFTPSRVTIMEOUT=1
 #
@@ -1843,18 +1581,12 @@ if nc -u -w $STORAGEFTPSRVTIMEOUT -t $STORAGEFTPSRVIFIP.10 $STORAGEFTPSRVPORT; t
    echo "" # dummy
    echo "INFO: I was able to connect to $STORAGEFTPSRVIFIP.10:${STORAGEFTPSRVPORT}"
    sleep 2
-   #/ echo "" # dummy
-   #/ echo "<--- --- --->"
-   #/ echo "try to mount the storage"
-   #/ echo "<--- --- --->"
    echo "" # dummy
    mkdir -p /c3d2-storage
 STORAGEFTPSRVSTATUS=$(mount | grep "c3d2-storage" | wc -l)
 if [ X"$STORAGEFTPSRVSTATUS" = X"1" ]; then
-   #/ echo "" # dummy
    echo "ERROR: storage is already mounted"
    sleep 2
-   #/ exit 1
 ###
 dialog --title "HQ Storage Server - umount" --backtitle "HQ Storage Server - umount" --yesno "Do you want umount the current storage? (press ESC to skip)" 5 66
 storageftp2=$?
