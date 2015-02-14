@@ -103,10 +103,13 @@ if [ -z "$STORAGESMB" ]; then
    apt-get install cifs-utils
    sleep 2
    #/ apt-get remove -y samba
-   systemctl stop smbd
-   systemctl stop nmbd
-   systemctl disable smbd
-   systemctl disable nmbd
+   service smbd stop
+   service nmbd stop
+   service samba stop
+   #
+   update-rc.d smbd disable
+   update-rc.d nmbd disable
+   update-rc.d samba disable
    echo "<--- --- --->"
 fi
 ifconfig | grep 'Link' | awk '{print $1}' | egrep -v "lo" > /tmp/c3d2-networking_storage_if_1.txt
