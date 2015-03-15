@@ -316,7 +316,7 @@ IFLIST1="/tmp/c3d2-networking_if_1.txt"
 IFLIST2="/tmp/c3d2-networking_if_2.txt"
 IFLIST3="/tmp/c3d2-networking_if_3.txt"
 nl $IFLIST1 | sed 's/ //g' > $IFLIST2
-dialog --menu "Choose one VLAN RAW Interface:" 15 15 15 "$(cat $IFLIST2)" 2>$IFLIST3
+dialog --menu "Choose one VLAN RAW Interface:" 15 15 15 $(cat $IFLIST2) 2>$IFLIST3
 ### fix2 // ###
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/c3d2-networking_if_2.txt /tmp/c3d2-networking_if_3.txt | awk '{print $2}' > /tmp/c3d2-networking_if_4.txt
 ### // fix2 ###
@@ -381,7 +381,7 @@ echo "XXX"
 ### run // ###
 /etc/init.d/networking start
 ### // run ###
-IFSTART=$(("$IFSTART" + 50))
+IFSTART=$(($IFSTART + 50))
 sleep 1
 done
 ) | dialog --title "/etc/init.d/networking start" --gauge "/etc/init.d/networking start" 20 70 0
@@ -413,7 +413,7 @@ IPV4DNSTESTNEW="/tmp/c3d2-networking_ipv4dnstest2.txt"
 touch $IPV4DNSTEST
 /bin/chmod 0600 $IPV4DNSTEST
 /bin/echo "dnscache.berlin.ccc.de" > $IPV4DNSTEST
-dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --inputbox "Enter a domain for analysis: (for example dnscache.berlin.ccc.de/213.73.91.35)" 8 85 "$(cat $IPV4DNSTEST)" 2>$IPV4DNSTESTNEW
+dialog --title "IPv4 DNS Test" --backtitle "IPv4 DNS Test" --inputbox "Enter a domain for analysis: (for example dnscache.berlin.ccc.de/213.73.91.35)" 8 85 $(cat $IPV4DNSTEST) 2>$IPV4DNSTESTNEW
 IPV4DNSTESTVALUE=$(sed 's/#//g' /tmp/c3d2-networking_ipv4dnstest2.txt | sed 's/%//g' | sed 's/ //g')
 /bin/ping -q -c5 "$IPV4DNSTESTVALUE" > /dev/null
 if [ $? -eq 0 ]
@@ -451,7 +451,7 @@ IPV4IPTESTNEW="/tmp/c3d2-networking_ipv4iptest2.txt"
 touch $IPV4IPTEST
 /bin/chmod 0600 $IPV4IPTEST
 /bin/echo "213.73.91.35" > $IPV4IPTEST
-dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --inputbox "Enter a IP for analysis: (for example 213.73.91.35/dnscache.berlin.ccc.de)" 8 85 "$(cat $IPV4IPTEST)" 2>$IPV4IPTESTNEW
+dialog --title "IPv4 IP Test" --backtitle "IPv4 IP Test" --inputbox "Enter a IP for analysis: (for example 213.73.91.35/dnscache.berlin.ccc.de)" 8 85 $(cat $IPV4IPTEST) 2>$IPV4IPTESTNEW
 IPV4IPTESTVALUE=$(sed 's/#//g' /tmp/c3d2-networking_ipv4iptest2.txt | sed 's/%//g' | sed 's/ //g')
 /bin/ping -q -c5 "$IPV4IPTESTVALUE" > /dev/null
 if [ $? -eq 0 ]
@@ -660,7 +660,7 @@ echo "XXX"
 ### run // ###
 ( (/usr/sbin/tcpdump -e -n -i "$GETIPV4IFVALUE" -c 5) >> $GETIPV4Z 2>&1) &
 ### // run ###
-TCPDUMP1=$(("$TCPDUMP1" + 5))
+TCPDUMP1=$(($TCPDUMP1 + 5))
 sleep 1
 done
 ) | dialog --title "tcpdump - network discovery" --gauge "discover the local network" 20 70 0
@@ -709,7 +709,7 @@ if [ "$CLASSCTEST" = 0 ]; then
    tr ' ' '\n' < $GETIPV4FULLDN42ALIST > $GETIPV4FULLDN42ALISTL
    sort -n $GETIPV4CURRDN42ALISTL $GETIPV4FULLDN42ALISTL | uniq -u > $GETIPV4SORTDN42ALISTL
    nl $GETIPV4SORTDN42ALISTL | sed 's/ //g' > $GETIPV4MENUDN42A
-   dialog --menu "Choose one (free) IP:" 45 45 40 "$(cat "$GETIPV4MENUDN42A")" 2>$GETIPV4MENUDN42ALIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 $(cat $GETIPV4MENUDN42A) 2>$GETIPV4MENUDN42ALIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menudn42a.log > /tmp/get_ipv4_address_menudn42a_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menudn42a_fix.log /tmp/get_ipv4_address_menudn42alist.log | awk '{print $2}' > /tmp/get_ipv4_address_menudn42a_ip.log
@@ -750,7 +750,7 @@ sleep 4
    tr ' ' '\n' < $GETIPV4FULLALIST > $GETIPV4FULLALISTL
    sort -n $GETIPV4CURRALISTL $GETIPV4FULLALISTL | uniq -u > $GETIPV4SORTALISTL
    nl $GETIPV4SORTALISTL | sed 's/ //g' > $GETIPV4MENUA
-   dialog --menu "Choose one (free) IP:" 45 45 40 "$(cat $GETIPV4MENUA)" 2>$GETIPV4MENUALIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 $(cat $GETIPV4MENUA) 2>$GETIPV4MENUALIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menua.log > /tmp/get_ipv4_address_menua_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menua_fix.log /tmp/get_ipv4_address_menualist.log | awk '{print $2}' > /tmp/get_ipv4_address_menua_ip.log
@@ -789,7 +789,7 @@ sleep 4
    tr ' ' '\n' < $GETIPV4FULLBLIST > $GETIPV4FULLBLISTL
    sort -n $GETIPV4CURRBLISTL $GETIPV4FULLBLISTL | uniq -u > $GETIPV4SORTBLISTL
    nl $GETIPV4SORTBLISTL | sed 's/ //g' > $GETIPV4MENUB
-   dialog --menu "Choose one (free) IP:" 45 45 40 "$(cat "$GETIPV4MENUB")" 2>$GETIPV4MENUBLIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 $(cat $GETIPV4MENUB) 2>$GETIPV4MENUBLIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menub.log > /tmp/get_ipv4_address_menub_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menub_fix.log /tmp/get_ipv4_address_menublist.log | awk '{print $2}' > /tmp/get_ipv4_address_menub_ip.log
@@ -828,7 +828,7 @@ else
    tr ' ' '\n' < $GETIPV4FULLCLIST > $GETIPV4FULLCLISTL
    sort -n $GETIPV4CURRCLISTL $GETIPV4FULLCLISTL | uniq -u > $GETIPV4SORTCLISTL
    nl $GETIPV4SORTCLISTL | sed 's/ //g' > $GETIPV4MENUC
-   dialog --menu "Choose one (free) IP:" 45 45 40 "$(cat "$GETIPV4MENUC")" 2>$GETIPV4MENUCLIST
+   dialog --menu "Choose one (free) IP:" 45 45 40 $(cat $GETIPV4MENUC) 2>$GETIPV4MENUCLIST
 ### fix // ###
 sort /tmp/get_ipv4_address_menuc.log > /tmp/get_ipv4_address_menuc_fix.log
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_address_menuc_fix.log /tmp/get_ipv4_address_menuclist.log | awk '{print $2}' > /tmp/get_ipv4_address_menuc_ip.log
@@ -872,13 +872,13 @@ echo "XXX"
 ### run // ###
 ( (/usr/sbin/tcpdump -e -n -i "$GETIPV4IFVALUE" -c 5) >> $GETIPV4ROUTER 2>&1) &
 ### // run ###
-TCPDUMP2=$(("$TCPDUMP2" + 5))
+TCPDUMP2=$(($TCPDUMP2 + 5))
 sleep 1
 done
 ) | dialog --title "tcpdump - router discovery" --gauge "discover local router" 20 70 0
    grep --color "OSPFv2" "$GETIPV4ROUTER" | awk '{print $10}' | sort | uniq > $GETIPV4ROUTER2
    nl $GETIPV4ROUTER2 | sed 's/ //g' > $GETIPV4ROUTERLIST
-   dialog --menu "Choose one default Router:" 10 30 40 "$(cat "$GETIPV4ROUTERLIST")" 2>$GETIPV4ROUTERLISTMENU
+   dialog --menu "Choose one default Router:" 10 30 40 $(cat $GETIPV4ROUTERLIST) 2>$GETIPV4ROUTERLISTMENU
 ### fix4 // ###
 awk 'NR==FNR {h[$1] = $2; next} {print $1,$2,h[$1]}' /tmp/get_ipv4_router_list.log /tmp/get_ipv4_router_list_menu.log > /tmp/get_ipv4_router_list_menu_choosed.log
 ### // fix4 ###
