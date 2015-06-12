@@ -168,7 +168,7 @@ esac
 ###
 else
    mount -t cifs //"$STORAGESMBSRVIFIP".10/rpool /c3d2-storage -o user=k-ot
-   mount -t cifs //"$STORAGESMBSRVIFIP".71/cpool /c3d2-storage-crypto -o user=k-ot
+   #/ mount -t cifs //"$STORAGESMBSRVIFIP".71/cpool /c3d2-storage-crypto -o user=k-ot
    echo "" # dummy
    df -h
 fi
